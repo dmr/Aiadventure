@@ -8,7 +8,7 @@
 | Datum | 31. Mai 2026 |
 | Status | Phase 1 abgeschlossen (Stufen 1–5 + Trainings-Simulator) |
 | Owner | internes Tooling / Developer Enablement |
-| Zielplattform | Single-File HTML-Artefakt (Browser, Desktop & Mobile) |
+| Zielplattform | Offline-fähige PWA (Browser, Desktop & Mobile), deploybar auf GitHub Pages |
 
 ---
 
@@ -75,8 +75,8 @@ Interaktives Entscheidungs-Szenario in einem gefakten Terminal. Erstes Szenario:
 
 ## 5. Tech-Stack & Architektur
 
-- **Build:** Vite + React 18 + TypeScript, Tailwind CSS, shadcn/ui (Radix-Primitives).
-- **Auslieferung:** Über `web-artifacts-builder` zu *einer* selbstständigen HTML-Datei gebundelt (alle JS/CSS inlined, ~400 KB). Keine Server-Abhängigkeit, kein externer Request außer den Quellen-Links.
+- **Build:** Vite 8 + React 19 + TypeScript, Tailwind CSS, shadcn/ui (Radix-Primitives).
+- **Auslieferung:** Offline-fähige PWA (`vite-plugin-pwa` / Workbox, Service Worker precached den App-Shell). Deployment automatisiert auf GitHub Pages. Keine Server-Abhängigkeit, kein externer Request außer den Quellen-Links (und optionalen Web-Fonts mit System-Fallback). Prüfbare Anforderungen siehe `ANFORDERUNGEN.md`.
 - **Bewegung:** logische Tile-Koordinaten als State, visuelles Smoothing per CSS-Transition (180 ms/Tile). Kollision via `canEnterTile`.
 - **Avatare:** prozedurales Canvas-Rendering (`AvatarCanvas`), Config aus Indizes für Haut/Haar/Kleidung.
 
