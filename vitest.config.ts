@@ -8,6 +8,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // The PWA register module is plugin-virtual; stub it for tests.
+      "virtual:pwa-register/react": path.resolve(
+        __dirname,
+        "./src/test/pwa-register-stub.ts",
+      ),
     },
   },
   test: {

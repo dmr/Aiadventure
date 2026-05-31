@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Terminal, RotateCw, ChevronRight } from 'lucide-react';
+import { resolveEnding } from '@/lib/scenarios';
 import type { Scenario, ScenarioBeat, DecisionOption, ScenarioEnding } from '@/lib/scenarios';
 
 type PlayedBeat = {
@@ -85,7 +86,7 @@ export function SandboxRunner({
     }
 
     // Reached end — pick ending
-    const ending = pickEnding(scenario.endings, score, tags);
+    const ending = resolveEnding(scenario.endings, score, tags);
     setState({ phase: 'ended', played: newPlayed, ending, score, tokens: newTokens });
   }
 
@@ -325,17 +326,4 @@ function DecisionPicker({
       </div>
     </div>
   );
-}
-
-// Pick the first ending whose constraints match; otherwise return last
-function pickEnding(endings: ScenarioEnding[], score: number, tags: Set<string>): ScenarioEnding {
-  for (const e of endings) {
-    if (e.requiresAll && !e.requiresAll.every(t => tags.has(t))) continue;
-    if (e.requiresAny && !e.requiresAny.some(t => tags.has(t))) continue;
-    if (e.excludes && e.excludes.some(t => tags.has(t))) continue;
-    if (e.minScore !== undefined && score < e.minScore) continue;
-    if (e.maxScore !== undefined && score > e.maxScore) continue;
-    return e;
-  }
-  return endings[endings.length - 1];
 }

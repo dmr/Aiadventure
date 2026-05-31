@@ -377,3 +377,25 @@ export const SCENARIO_FRIDAY_HOTFIX: Scenario = {
 export const SCENARIOS: Record<string, Scenario> = {
   [SCENARIO_FRIDAY_HOTFIX.id]: SCENARIO_FRIDAY_HOTFIX,
 };
+
+/**
+ * Pick the first ending whose constraints all match the given score and tags.
+ * Endings are evaluated in declaration order; if none match, the last ending
+ * acts as the catch-all fallback. Pure function — safe to unit-test.
+ */
+export function resolveEnding(
+  endings: ScenarioEnding[],
+  score: number,
+  tags: Iterable<string>,
+): ScenarioEnding {
+  const tagSet = tags instanceof Set ? tags : new Set(tags);
+  for (const e of endings) {
+    if (e.requiresAll && !e.requiresAll.every((t) => tagSet.has(t))) continue;
+    if (e.requiresAny && !e.requiresAny.some((t) => tagSet.has(t))) continue;
+    if (e.excludes && e.excludes.some((t) => tagSet.has(t))) continue;
+    if (e.minScore !== undefined && score < e.minScore) continue;
+    if (e.maxScore !== undefined && score > e.maxScore) continue;
+    return e;
+  }
+  return endings[endings.length - 1];
+}
