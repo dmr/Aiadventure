@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// GitHub Pages serves project sites under /<repo>/. Override with BASE_PATH if
-// you deploy elsewhere (e.g. a custom domain → "/").
-const base = process.env.BASE_PATH ?? "/aiadventure/";
+// GitHub Pages serves project sites under /<repo>/ and paths are
+// case-sensitive — must match the repo name exactly ("Aiadventure"). Override
+// with BASE_PATH if you deploy elsewhere (e.g. a custom domain → "/").
+const base = process.env.BASE_PATH ?? "/Aiadventure/";
 
 export default defineConfig({
   base,
