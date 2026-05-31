@@ -11,6 +11,7 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
+import { loadProgress, saveProgress } from '@/lib/storage';
 import type { AvatarConfig } from '@/lib/avatar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen } from 'lucide-react';
@@ -78,10 +79,22 @@ export function GameScreen({ avatar, name, onExit }: Props) {
   const [walkFrame, setWalkFrame] = useState(0);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [sandbox, setSandbox] = useState<string | null>(null);
-  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
-  const [misc, setMisc] = useState<Set<string>>(new Set());
+  // Restore previously earned badges/rewards so progress survives reloads.
+  const [savedProgress] = useState(loadProgress);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(
+    () => new Set(savedProgress.completedLessons),
+  );
+  const [misc, setMisc] = useState<Set<string>>(() => new Set(savedProgress.misc));
   const [showHint, setShowHint] = useState(true);
   const [transition, setTransition] = useState(false);
+
+  // Persist progress whenever a lesson is completed or a reward is collected.
+  useEffect(() => {
+    saveProgress({
+      completedLessons: Array.from(completedLessons),
+      misc: Array.from(misc),
+    });
+  }, [completedLessons, misc]);
 
   const room = ROOMS[roomId];
 

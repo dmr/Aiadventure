@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { loadPrefs, savePrefs, clearPrefs, type Prefs } from './storage';
+import {
+  loadPrefs,
+  savePrefs,
+  clearPrefs,
+  loadProgress,
+  saveProgress,
+  clearProgress,
+  type Prefs,
+} from './storage';
 
 describe('storage', () => {
   afterEach(() => {
@@ -42,5 +50,30 @@ describe('storage', () => {
       throw new DOMException('QuotaExceededError');
     });
     expect(() => savePrefs({ name: 'Bytebär' })).not.toThrow();
+  });
+});
+
+describe('progress', () => {
+  afterEach(() => localStorage.clear());
+
+  it('defaults to empty arrays when nothing is stored', () => {
+    expect(loadProgress()).toEqual({ completedLessons: [], misc: [] });
+  });
+
+  it('round-trips progress through localStorage', () => {
+    const progress = { completedLessons: ['usecases', 'context'], misc: ['cat-friend'] };
+    saveProgress(progress);
+    expect(loadProgress()).toEqual(progress);
+  });
+
+  it('clearProgress resets to defaults', () => {
+    saveProgress({ completedLessons: ['usecases'], misc: [] });
+    clearProgress();
+    expect(loadProgress()).toEqual({ completedLessons: [], misc: [] });
+  });
+
+  it('coerces malformed/missing fields to empty arrays', () => {
+    localStorage.setItem('cafe-campfire-progress-v1', JSON.stringify({ completedLessons: 'nope' }));
+    expect(loadProgress()).toEqual({ completedLessons: [], misc: [] });
   });
 });
