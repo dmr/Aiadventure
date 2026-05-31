@@ -61,7 +61,10 @@ Konsequenz fürs Design: kein Hype, ehrliche Quotes aus echten Erfahrungsbericht
 Jede Lektion besteht aus Schritt-Typen: Text, Code-Beispiel, Quote (mit Quelle), Quiz (Multiple-Choice ohne "Bestrafung"), Reveal (Konsens-Auflösung), Quellenliste.
 
 ### 4.3 Trainings-Simulator (das zentrale Phase-1-Feature)
-Interaktives Entscheidungs-Szenario in einem gefakten Terminal. Erstes Szenario: **"Production Hotfix on Friday Afternoon"** (TypeScript/Node/Postgres).
+Interaktive Entscheidungs-Szenarien in einem gefakten Terminal. Drei Szenarien über separate Cockpit-Terminals:
+1. **"Production Hotfix on Friday Afternoon"** (TypeScript/Node/Postgres) — Diagnose-Disziplin, Tests vor Fix.
+2. **"Greenfield: Der neue Notification-Service"** (Python/FastAPI) — Spec-first, der Mensch bleibt Architekt, schmale Slices.
+3. **"Der unbeaufsichtigte Agent"** (Node/Monorepo) — Guardrails (Hooks/Scope) & Context-Hygiene legitimieren Autonomie.
 
 - Linearer Ablauf aus Beats (Narration / Claude-Output / System-Meldung / Entscheidung).
 - 4 Entscheidungspunkte; jede Wahl liefert Feedback, ggf. ein Folge-Beat (Mock-Terminal-Reaktion), sammelt Score + Tags.

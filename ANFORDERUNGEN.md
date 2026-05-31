@@ -118,6 +118,8 @@ echte CLI-Anbindung.
 | Thema | Status / Gegenmaßnahme |
 |---|---|
 | Manueller Offline-/Install-Test | offen — durch Team vor Rollout |
-| Google-Fonts via `@import` (externer Request) | Font ist rein kosmetisch; offline greift System-Fallback. Optional: Fonts self-hosten für 100 % offline-konsistente Typografie. |
+| Spielfortschritt (Badges/Stufen) | ✅ erledigt — wird in localStorage persistiert (`loadProgress`/`saveProgress`) |
+| Schriften / externer Request | ✅ erledigt — Fonts self-hosted via `@fontsource-variable` (kein Google-Request) |
 | Mock-Outputs im Simulator wirken evtl. "fake" | nach Team-Feedback iterieren |
 | Bundle enthält viele ungenutzte shadcn/ui-Komponenten | Tree-Shaking entfernt Ungenutztes; ungenutzte Quellen können später aufgeräumt werden |
+| `gender` wird erfasst, aber nicht genutzt | entweder Wirkung geben oder entfernen |
