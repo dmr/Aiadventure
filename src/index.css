@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap');
+/* Fonts are self-hosted via @fontsource-variable (imported in main.tsx) — no
+   external request, so the PWA stays fully offline and privacy-friendly. */
 
 @tailwind base;
 @tailwind components;
@@ -42,14 +43,14 @@
   html, body, #root { height: 100%; }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Manrope Variable', sans-serif;
     -webkit-font-smoothing: antialiased;
     background-image:
       radial-gradient(at 22% 14%, hsl(30 50% 88%) 0px, transparent 50%),
       radial-gradient(at 86% 76%, hsl(20 60% 90%) 0px, transparent 50%);
     overscroll-behavior: none;
   }
-  .display-font { font-family: 'Bricolage Grotesque', sans-serif; font-variation-settings: 'opsz' 32; letter-spacing: -0.02em; }
+  .display-font { font-family: 'Bricolage Grotesque Variable', sans-serif; font-variation-settings: 'opsz' 32; letter-spacing: -0.02em; }
 }
 
 canvas.pixel { image-rendering: pixelated; image-rendering: crisp-edges; }

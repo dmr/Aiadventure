@@ -17,6 +17,9 @@ export default defineConfig({
       includeAssets: ["favicon.svg", "apple-touch-icon.png", "app-icon.svg"],
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"],
+        // Don't precache font subsets German content never needs — the browser
+        // selects subsets by unicode-range, so these would never be requested.
+        globIgnores: ["**/*-{cyrillic,cyrillic-ext,greek,greek-ext,vietnamese}-*.woff2"],
         // SPA fallback so deep links / refreshes work offline.
         navigateFallback: `${base}index.html`,
         cleanupOutdatedCaches: true,
