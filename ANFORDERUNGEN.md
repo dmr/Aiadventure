@@ -87,7 +87,7 @@ echte CLI-Anbindung.
 - **Build:** Vite 8, React 19, TypeScript, Tailwind CSS 3, shadcn/ui (Radix).
 - **PWA:** `vite-plugin-pwa` (Workbox, `generateSW`, `registerType: autoUpdate`).
 - **Paketmanager:** pnpm; reproduzierbar via `--frozen-lockfile`.
-- **Base-Path:** `/aiadventure/` (GitHub Pages Project Site), per `BASE_PATH` überschreibbar.
+- **Base-Path:** `/Aiadventure/` (GitHub Pages Project Site; Pfad ist case-sensitive, muss exakt dem Repo-Namen entsprechen), per `BASE_PATH` überschreibbar.
 - **Tests:** Vitest + jsdom + Testing Library.
 - **Architektur:** Logik in `src/lib` (framework-frei, testbar), UI in `src/components`.
 

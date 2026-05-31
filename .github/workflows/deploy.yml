@@ -37,7 +37,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build
-        # base path defaults to /aiadventure/ (the repo name). Override via
+        # base path defaults to /Aiadventure/ (the repo name, case-sensitive). Override via
         # BASE_PATH if you serve from a custom domain or different repo.
         run: pnpm build
 

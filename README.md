@@ -39,8 +39,9 @@ Updates werden automatisch gezogen; ein dezenter Hinweis bietet Neuladen an.
 1. Repo-Settings → **Pages** → *Build and deployment* → Source: **GitHub Actions**.
 2. Push auf `main` (oder Workflow manuell auslösen) deployt automatisch.
 
-Der Base-Path ist `/aiadventure/` (Repo-Name). Für ein anderes Repo oder eine
-eigene Domain via `BASE_PATH` überschreiben, z. B. `BASE_PATH=/ pnpm build`.
+Der Base-Path ist `/Aiadventure/` (exakter Repo-Name — GitHub-Pages-Pfade sind
+case-sensitive). Für ein anderes Repo oder eine eigene Domain via `BASE_PATH`
+überschreiben, z. B. `BASE_PATH=/ pnpm build`.
 
 ## Projektstruktur
 
