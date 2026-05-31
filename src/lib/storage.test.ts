@@ -6,6 +6,8 @@ import {
   loadProgress,
   saveProgress,
   clearProgress,
+  hasSeenTutorial,
+  markTutorialSeen,
   type Prefs,
 } from './storage';
 
@@ -75,5 +77,18 @@ describe('progress', () => {
   it('coerces malformed/missing fields to empty arrays', () => {
     localStorage.setItem('cafe-campfire-progress-v1', JSON.stringify({ completedLessons: 'nope' }));
     expect(loadProgress()).toEqual({ completedLessons: [], misc: [] });
+  });
+});
+
+describe('tutorial flag', () => {
+  afterEach(() => localStorage.clear());
+
+  it('is false for first-time players', () => {
+    expect(hasSeenTutorial()).toBe(false);
+  });
+
+  it('becomes true once marked seen', () => {
+    markTutorialSeen();
+    expect(hasSeenTutorial()).toBe(true);
   });
 });

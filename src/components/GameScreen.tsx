@@ -11,10 +11,11 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
-import { loadProgress, saveProgress } from '@/lib/storage';
+import { loadProgress, saveProgress, hasSeenTutorial, markTutorialSeen } from '@/lib/storage';
+import { Tutorial } from './Tutorial';
 import type { AvatarConfig } from '@/lib/avatar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen } from 'lucide-react';
+import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle } from 'lucide-react';
 
 type Props = {
   avatar: AvatarConfig;
@@ -87,6 +88,13 @@ export function GameScreen({ avatar, name, onExit }: Props) {
   const [misc, setMisc] = useState<Set<string>>(() => new Set(savedProgress.misc));
   const [showHint, setShowHint] = useState(true);
   const [transition, setTransition] = useState(false);
+  // Show the onboarding overlay once for first-time players.
+  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
+
+  const dismissTutorial = useCallback(() => {
+    markTutorialSeen();
+    setShowTutorial(false);
+  }, []);
 
   // Persist progress whenever a lesson is completed or a reward is collected.
   useEffect(() => {
@@ -104,12 +112,14 @@ export function GameScreen({ avatar, name, onExit }: Props) {
   const sandboxRef = useRef<string | null>(null);
   const facingRef = useRef(facing);
   const roomRef = useRef(room);
+  const tutorialRef = useRef(showTutorial);
   useEffect(() => { tileRef.current = tile; }, [tile]);
   useEffect(() => { movingRef.current = moving; }, [moving]);
   useEffect(() => { dialogRef.current = dialog; }, [dialog]);
   useEffect(() => { sandboxRef.current = sandbox; }, [sandbox]);
   useEffect(() => { facingRef.current = facing; }, [facing]);
   useEffect(() => { roomRef.current = room; }, [room]);
+  useEffect(() => { tutorialRef.current = showTutorial; }, [showTutorial]);
 
   const keysHeld = useRef<Record<Dir, boolean>>({ up: false, down: false, left: false, right: false });
   const lastKey = useRef<Dir | null>(null);
@@ -138,6 +148,8 @@ export function GameScreen({ avatar, name, onExit }: Props) {
   // ── Keyboard listeners ───────────────────────────────────────────────────
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      // Swallow input while the onboarding overlay is open.
+      if (tutorialRef.current) return;
       const k = e.key.toLowerCase();
       const dir = KEY_TO_DIR[k];
       if (dir) {
@@ -386,9 +398,19 @@ export function GameScreen({ avatar, name, onExit }: Props) {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onExit} className="shrink-0">
-          <X className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowTutorial(true)}
+            aria-label="So spielst du"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onExit} aria-label="Spiel verlassen">
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {(completedLessons.size > 0 || misc.size > 0) && (
@@ -504,6 +526,8 @@ export function GameScreen({ avatar, name, onExit }: Props) {
           }}
         />
       )}
+
+      {showTutorial && <Tutorial onClose={dismissTutorial} />}
     </div>
   );
 }

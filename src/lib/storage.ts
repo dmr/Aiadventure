@@ -83,3 +83,25 @@ export function clearProgress(): void {
     // Ignore
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Onboarding (show the tutorial once for first-time players)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TUTORIAL_KEY = 'cafe-campfire-tutorial-seen-v1';
+
+export function hasSeenTutorial(): boolean {
+  try {
+    return localStorage.getItem(TUTORIAL_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function markTutorialSeen(): void {
+  try {
+    localStorage.setItem(TUTORIAL_KEY, '1');
+  } catch {
+    // Ignore
+  }
+}

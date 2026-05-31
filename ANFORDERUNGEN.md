@@ -39,6 +39,7 @@ echte CLI-Anbindung.
 | ID | Anforderung | Priorität |
 |---|---|---|
 | FR-1 | Beim Start erscheint ein Titelbildschirm mit Einstieg ("Reinkommen"). | Muss |
+| FR-1b | Beim ersten Spielbetreten erklärt ein kurzes Onboarding-Overlay Ziel + Steuerung (einmalig, persistiert; jederzeit über "?" erneut aufrufbar). | Soll |
 | FR-2 | Avatar-Editor: Haut, Frisur, Haarfarbe, Shirt, Hose, Accessoire wählbar; prozedural gerendert. | Muss |
 | FR-3 | Namensgenerator schlägt einen Namen vor und kann neu gewürfelt werden (kein direkter Wiederholung). | Muss |
 | FR-4 | Avatar, Name und Geschlecht werden in localStorage persistiert und beim Neustart geladen. | Muss |
