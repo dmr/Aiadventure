@@ -324,7 +324,7 @@ const garten: RoomDef = {
 const cockpit: RoomDef = {
   id: 'cockpit',
   name: 'Cockpit',
-  subtitle: 'Stufe 5 · Agent Mode — sprich mit Iris, und probier den Simulator',
+  subtitle: 'Stufe 5 · Agent Mode — sprich mit Iris, dann probier die Simulator-Terminals',
   floor: 'stone',
   tint: '#d8c8b0',
   rows: [
@@ -340,10 +340,10 @@ const cockpit: RoomDef = {
   ],
   decorations: [
     { x: 1, y: 1, emoji: '🖥️' },
-    { x: 3, y: 1, emoji: '📡' },
+    { x: 3, y: 1, emoji: '🟢', label: 'Sim: Greenfield', scale: 1.2 },
     { x: 5, y: 1, emoji: '🎛️' },
     { x: 7, y: 1, emoji: '📊' },
-    { x: 9, y: 1, emoji: '🔭' },
+    { x: 9, y: 1, emoji: '🌙', label: 'Sim: Agent über Nacht', scale: 1.2 },
     { x: 11, y: 1, emoji: '🛰️' },
     { x: 1, y: 3, emoji: '💺' },
     { x: 2, y: 3, emoji: '⌨️' },
@@ -383,8 +383,22 @@ const cockpit: RoomDef = {
     {
       x: 7, y: 7,
       id: 'simulator',
-      label: '🎮 Trainings-Simulator starten',
+      label: '🎮 Simulator: Friday Hotfix',
       sandboxId: 'friday-hotfix',
+      lines: [],
+    },
+    {
+      x: 3, y: 1,
+      id: 'sim-greenfield',
+      label: '🟢 Simulator: Greenfield-Service',
+      sandboxId: 'greenfield-spec',
+      lines: [],
+    },
+    {
+      x: 9, y: 1,
+      id: 'sim-runaway',
+      label: '🌙 Simulator: Agent über Nacht',
+      sandboxId: 'runaway-agent',
       lines: [],
     },
   ],

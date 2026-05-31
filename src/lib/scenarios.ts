@@ -374,8 +374,404 @@ export const SCENARIO_FRIDAY_HOTFIX: Scenario = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Szenario 2: Greenfield — Der neue Notification-Service
+// Lernziel: Spec-first, der Mensch bleibt Architekt, schmale Slices.
+// ─────────────────────────────────────────────────────────────────────────────
+export const SCENARIO_GREENFIELD: Scenario = {
+  id: 'greenfield-spec',
+  title: 'Greenfield: Der neue Notification-Service',
+  subtitle: 'Python · FastAPI · keine Specs · 0 LOC',
+  briefBy: 'Sven',
+  brief:
+    'Montagmorgen. Der PM: "Wir brauchen einen Notification-Service — E-Mail, SMS, Push. ' +
+    'Bau das mal mit Claude, du hast die Woche. Details klären wir unterwegs." ' +
+    'Mehr steht nicht im Ticket. Leeres Repo, Claude Code ist bereit. Wie startest du?',
+  estimatedMin: 7,
+  beats: [
+    { kind: 'system', text: '📋 Jira NOTIF-1 · Montag 09:14', variant: 'info' },
+    {
+      kind: 'narration',
+      text:
+        '> "Notification-Service: E-Mail, SMS, Push. Details klären wir unterwegs." — @pm. ' +
+        'Ein Satz. Sonst nichts.',
+    },
+    {
+      kind: 'narration',
+      text: 'Greenfield, leeres Repo. Bei novel Design bist du der Architekt — nicht die KI. Erste Aktion?',
+    },
+    {
+      kind: 'decision',
+      prompt: 'Wie beginnst du?',
+      options: [
+        {
+          label: 'Erst Spec: Claude Rückfragen stellen lassen, dann kurzes Design-Doc',
+          hint: 'Annahmen explizit machen, bevor Code entsteht',
+          feedback:
+            '✓ Bei vagen Greenfield-Tasks der schnellste Weg. Die Fragen entlarven das, was im Ticket fehlt.',
+          tags: ['spec_first'],
+          score: 3,
+          followUp: {
+            kind: 'claude',
+            lines: [
+              '> Bevor ich baue — ein paar Fragen:',
+              '>   1. Welche Provider (SES/SendGrid? Twilio? APNs/FCM)?',
+              '>   2. Retry-Policy & Idempotenz bei Doppel-Sends?',
+              '>   3. Rate Limits / Throttling pro Empfänger?',
+              '>   4. Ist "Push" wirklich nötig — oder reicht E-Mail im MVP?',
+            ],
+            tokens: 1900,
+          },
+        },
+        {
+          label: '"Bau einen Notification-Service in FastAPI" — Auto-Accept, los',
+          hint: 'Claude legt sofort los',
+          feedback:
+            '⚠️ Du delegierst die wichtigsten Entscheidungen an Zufall. Die KI errät Provider und Architektur, die niemand bestellt hat.',
+          tags: ['yolo', 'no_spec'],
+          score: -2,
+          followUp: {
+            kind: 'claude',
+            lines: [
+              '> Creating 14 files...',
+              '> Chose Twilio + SendGrid + Firebase (assumed)',
+              '> Added Celery + Redis for async (assumed)',
+              '> Scaffolded an abstract ProviderStrategy hierarchy...',
+            ],
+            tokens: 9800,
+          },
+        },
+        {
+          label: 'Subagent: "Wie machen andere Services im Monorepo Outbound-Calls?"',
+          hint: 'Erst die bestehenden Muster verstehen',
+          feedback:
+            '✓ Konsistenz schlägt Neuerfindung. Vielleicht gibt es schon Bausteine, die du nicht neu bauen musst.',
+          tags: ['subagent', 'consistency'],
+          score: 2,
+          followUp: {
+            kind: 'claude',
+            lines: [
+              '> Subagent: scanning monorepo for outbound patterns...',
+              '> Found: shared lib outbound/ with retry + idempotency keys',
+              '> Found: SES already wired in billing-service',
+              '> Summary returned (420 tokens) — reuse, don\'t reinvent',
+            ],
+            tokens: 2200,
+          },
+        },
+      ],
+    },
+    {
+      kind: 'narration',
+      text:
+        'Es klärt sich: Es gibt bereits eine `outbound/`-Lib mit Retry + Idempotenz, ' +
+        'SES ist schon angebunden — und "Push" meinte der PM eigentlich nur für iOS (APNs), irgendwann.',
+    },
+    {
+      kind: 'decision',
+      prompt: 'Architektur-Entscheidungen?',
+      options: [
+        {
+          label: 'Plan Mode: Claude schlägt vor, DU entscheidest Provider & Grenzen',
+          hint: 'Der Mensch bleibt Architekt',
+          feedback: '✓ Genau richtig. Bei novel Design triffst du die folgenreichen Entscheidungen.',
+          tags: ['planned', 'architect_human'],
+          score: 3,
+          followUp: {
+            kind: 'claude',
+            lines: [
+              '> Plan: MVP = nur E-Mail über bestehende outbound/-Lib',
+              '> SMS/Push als spätere Slices, klar abgegrenzt',
+              '> Kein Kafka, kein Celery — YAGNI. Approve?',
+            ],
+            tokens: 1500,
+          },
+        },
+        {
+          label: 'Claude entscheidet die Architektur, du reviewst nur den Code',
+          hint: 'Schein-Geschwindigkeit',
+          feedback: '✗ Architektur ohne menschliche Entscheidung ist die teuerste Art, schnell zu wirken.',
+          tags: ['ai_architect'],
+          score: -3,
+          followUp: {
+            kind: 'system',
+            text:
+              '🏗️ Claude wählt Event-Sourcing mit Kafka — massiv over-engineered für 3 Notification-Typen. ' +
+              'Niemand hat das bestellt; jetzt steht es im Repo.',
+            variant: 'warn',
+          },
+        },
+        {
+          label: 'Default Mode, iterativ Feature für Feature — du führst',
+          hint: 'Reibung gibt Sichtbarkeit',
+          feedback: '✓ Vertretbar. Etwas langsamer, dafür behältst du die Kontrolle über jede Entscheidung.',
+          tags: ['default_mode'],
+          score: 2,
+        },
+      ],
+    },
+    {
+      kind: 'claude',
+      lines: [
+        '> Implementing email slice via outbound/...',
+        '> Writing tests for templating + retry...',
+      ],
+      tokens: 2600,
+    },
+    { kind: 'system', text: '✓ E-Mail-Slice: 18 Tests grün. SMS/APNs als nächste Slices geplant.', variant: 'ok' },
+    {
+      kind: 'decision',
+      prompt: 'Vor dem ersten PR...',
+      options: [
+        {
+          label: 'Schmaler vertikaler Slice (nur E-Mail) als PR — früh Feedback',
+          hint: 'Klein liefern, früh lernen',
+          feedback: '✓ Der PM sieht früh etwas Echtes und kann korrigieren, bevor Aufwand verbrennt.',
+          tags: ['thin_slice'],
+          score: 3,
+        },
+        {
+          label: 'Erst alles fertig bauen (E-Mail+SMS+Push), dann ein großer PR',
+          hint: 'Ein großer Wurf',
+          feedback: '⚠️ Big-Bang-Risiko: viel Arbeit, bevor du weißt, ob die Annahmen stimmen.',
+          tags: ['big_bang'],
+          score: -2,
+          followUp: {
+            kind: 'system',
+            text:
+              '🗑️ PM sieht das fertige Ding: "SMS brauchen wir doch nicht, Push ist nächstes Quartal." ' +
+              '~60 % der Woche weggeworfen.',
+            variant: 'error',
+          },
+        },
+        {
+          label: 'PR mit E-Mail + dokumentierten offenen Fragen für SMS/Push',
+          hint: 'Liefern und Unklarheiten sichtbar machen',
+          feedback: '✓ Solide. Du lieferst Wert und machst die Lücken explizit.',
+          tags: ['thin_slice', 'documented'],
+          score: 2,
+        },
+      ],
+    },
+  ],
+  endings: [
+    {
+      requiresAny: ['ai_architect', 'big_bang', 'no_spec'],
+      icon: '🔴',
+      title: 'Das Scope-Monster',
+      lesson:
+        'Ohne Spec und ohne menschliche Architektur-Entscheidung ist ein System entstanden, das niemand bestellt hat — ' +
+        'over-engineered, halb am Bedarf vorbei. Lesson: Bei Greenfield ist Spezifizieren die eigentliche Arbeit. ' +
+        'Die KI baut, was du entscheidest — nicht, was sie errät.',
+    },
+    {
+      requiresAll: ['spec_first', 'planned'],
+      minScore: 8,
+      icon: '🏆',
+      title: 'Sauber spezifiziert',
+      lesson:
+        'Rückfragen zuerst, du als Architekt, ein schmaler Slice mit Tests. Der PM korrigierte früh, ' +
+        'nichts wurde verschwendet. Genau so wird KI bei novel Design ein Hebel statt ein Risiko.',
+    },
+    {
+      minScore: 6,
+      icon: '🟢',
+      title: 'Solide geliefert',
+      lesson: 'Funktionierender Slice, Kontrolle behalten. Beim nächsten Mal noch früher die Spec festklopfen.',
+    },
+    {
+      minScore: 2,
+      icon: '🟡',
+      title: 'Durchgewurschtelt',
+      lesson:
+        'Am Ende lief etwas — aber mehr durch Nachsteuern als durch Plan. Spec-first hätte dir den Zickzack erspart.',
+    },
+    {
+      icon: '🟠',
+      title: 'Über-engineered',
+      lesson:
+        'Es steht Code da, aber zu viel davon und am Bedarf vorbei. Lies Stufe 3 (Promptcraft) und 4 (Plan Mode) nochmal.',
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Szenario 3: Der unbeaufsichtigte Agent (Autonomie & Kosten)
+// Lernziel: Guardrails (Hooks/Scope) legitimieren Autonomie; Context-Hygiene.
+// ─────────────────────────────────────────────────────────────────────────────
+export const SCENARIO_RUNAWAY_AGENT: Scenario = {
+  id: 'runaway-agent',
+  title: 'Der unbeaufsichtigte Agent',
+  subtitle: 'Node · Monorepo · 23 Uhr · bypass-permissions',
+  briefBy: 'Iris',
+  brief:
+    'Freitagnacht, du willst fertig werden. Ein großes, mechanisches Refactor steht an (Legacy-Modul modernisieren, ~200 Files). ' +
+    'Verlockend: Claude im "bypass permissions"-Mode laufen lassen und schlafen gehen. ' +
+    'Autonomie ist mächtig — aber nur so weit, wie dein Sicherheitsnetz reicht. Was tust du?',
+  estimatedMin: 6,
+  beats: [
+    { kind: 'system', text: '🌙 23:04 · bypass-permissions verfügbar', variant: 'info' },
+    {
+      kind: 'narration',
+      text: 'Das Refactor ist mechanisch, aber groß. Über Nacht autonom laufen lassen? Wie setzt du den Lauf auf?',
+    },
+    {
+      kind: 'decision',
+      prompt: 'Setup für den autonomen Lauf?',
+      options: [
+        {
+          label: 'Stop-Hook mit Lint + Test + Typecheck — DANN Auto-Accept',
+          hint: 'Erst das Netz, dann der Sprung',
+          feedback: '✓ Autonomie wird durch Guardrails legitim. Ein Stop-Hook fängt Fehler, bevor sie sich stapeln.',
+          tags: ['guardrail', 'hook'],
+          score: 3,
+          followUp: {
+            kind: 'claude',
+            lines: ['> Stop-Hook: pnpm lint && pnpm test && tsc --noEmit', '> Blockiert Fortsetzung bei rotem Check'],
+            tokens: 600,
+          },
+        },
+        {
+          label: 'bypass-permissions, kein Hook, gute Nacht',
+          hint: 'Maximaler Speed, null Aufsicht',
+          feedback: '✗ Autonomie ohne Netz ist kein Mut, sondern ein Lottoschein.',
+          tags: ['yolo_unattended'],
+          score: -3,
+          followUp: {
+            kind: 'system',
+            text:
+              '☠️ 02:00: Claude bekämpft einen Lint-Autofix mit einem eigenen Edit — Endlosschleife. ' +
+              '47 Commits, 1,2 Mio Tokens, Tests waren nie grün.',
+            variant: 'error',
+          },
+        },
+        {
+          label: 'Scope eng: nur src/legacy/, klare Done-Bedingung, dann beobachten',
+          hint: 'Kleiner Radius, klares Ziel',
+          feedback: '✓ Enger Scope + Abbruchkriterium macht autonomes Arbeiten überschaubar.',
+          tags: ['scoped'],
+          score: 2,
+        },
+      ],
+    },
+    {
+      kind: 'narration',
+      text: 'Der Lauf startet. Während Claude arbeitet — wie gehst du mit Kontext und Kosten um?',
+    },
+    {
+      kind: 'decision',
+      prompt: 'Während des Laufs...',
+      options: [
+        {
+          label: 'Kosten-Budget im Blick, /clear zwischen unverwandten Batches',
+          hint: 'Frischer Context = präzisere Edits',
+          feedback: '✓ Context-Hygiene hält Qualität hoch und Kosten unten — Output ist 5× teurer als Input.',
+          tags: ['cost_aware', 'context_hygiene'],
+          score: 3,
+        },
+        {
+          label: 'Ganzes Monorepo als Kontext mitgeben, "damit nichts übersehen wird"',
+          hint: 'Mehr Kontext = besser, oder?',
+          feedback: '⚠️ "Lost in the middle": riesiger Context senkt Genauigkeit und kostet ein Vermögen.',
+          tags: ['whole_repo'],
+          score: -2,
+          followUp: {
+            kind: 'system',
+            text:
+              '📉 Context bei 95 %. Claude vergisst die Regel aus File 1 und ändert eine API, die unangetastet bleiben sollte.',
+            variant: 'warn',
+          },
+        },
+        {
+          label: 'Batchweise: 20 Files → review → commit → /clear → nächster Batch',
+          hint: 'Kleine, prüfbare Häppchen',
+          feedback: '✓ Saubere Batches mit Zwischen-Commits — leicht zu reviewen, leicht zurückzurollen.',
+          tags: ['batched', 'context_hygiene'],
+          score: 2,
+        },
+      ],
+    },
+    {
+      kind: 'claude',
+      lines: ['> Batch 1/10: 20 files...', '> Stop-Hook: lint ✓ test ✓ typecheck ✓', '> Commit a1b2c3d'],
+      tokens: 3400,
+    },
+    {
+      kind: 'decision',
+      prompt: 'Am Morgen, vor dem Merge auf main...',
+      options: [
+        {
+          label: 'Diff gezielt reviewen — Stichproben + alle API-Grenzen',
+          hint: 'Du bleibst verantwortlich',
+          feedback: '✓ Auch bei grünen Tests: du merge-st, also reviewst du. Besonders die Schnittstellen.',
+          tags: ['reviewed'],
+          score: 3,
+        },
+        {
+          label: 'Tests grün = merge, Diff ungelesen',
+          hint: 'Vertrauen ins Netz',
+          feedback: '⚠️ Tests decken nur, was sie abdecken. Ungelesene 200-File-Diffs sind ein Vertrauensvorschuss ohne Deckung.',
+          tags: ['trusted_blindly'],
+          score: 0,
+          followUp: {
+            kind: 'system',
+            text: '🩹 Coverage liegt bei 60 %. Ein ungetesteter Pfad in der Billing-Logik wurde stillschweigend mitverändert.',
+            variant: 'warn',
+          },
+        },
+        {
+          label: 'Subagent: "Fasse die riskantesten Änderungen zusammen", dann gezielt prüfen',
+          hint: 'Review fokussieren statt 200 Diffs starren',
+          feedback: '✓ Clever. Der Subagent priorisiert, du prüfst, wo es zählt.',
+          tags: ['reviewed', 'subagent'],
+          score: 2,
+        },
+      ],
+    },
+  ],
+  endings: [
+    {
+      requiresAny: ['yolo_unattended', 'whole_repo'],
+      icon: '🔴',
+      title: 'Die 1,2-Mio-Token-Nacht',
+      lesson:
+        'Autonomie ohne Guardrails: Endlosschleifen, explodierende Kosten, ein Diff dem niemand traut. ' +
+        'Lesson: Plan Mode, Stop-Hooks, enger Scope und Context-Hygiene sind das, was Autonomie überhaupt erst legitimiert.',
+    },
+    {
+      requiresAll: ['guardrail', 'reviewed'],
+      minScore: 8,
+      icon: '🏆',
+      title: 'Autonomie mit Netz',
+      lesson:
+        'Stop-Hook als Sicherheitsnetz, saubere Batches, fokussiertes Review am Morgen. ' +
+        'So wird "über Nacht laufen lassen" vom Glücksspiel zum legitimen Werkzeug.',
+    },
+    {
+      minScore: 6,
+      icon: '🟢',
+      title: 'Kontrolliert geliefert',
+      lesson: 'Der Lauf war eingehegt und das Ergebnis geprüft. Beim nächsten Mal das Sicherheitsnetz noch früher spannen.',
+    },
+    {
+      minScore: 2,
+      icon: '🟡',
+      title: 'Gerade nochmal gut',
+      lesson: 'Es ist nichts explodiert — aber näher an Glück als an Methode. Guardrails hätten dir die Nervosität erspart.',
+    },
+    {
+      icon: '🟠',
+      title: 'Blindflug mit Glück',
+      lesson:
+        'Production läuft, aber durch Tool-Vermeidung und Zufall. Lies Stufe 5 (Trust-Calibration) nochmal — die Werkzeuge sind da.',
+    },
+  ],
+};
+
 export const SCENARIOS: Record<string, Scenario> = {
   [SCENARIO_FRIDAY_HOTFIX.id]: SCENARIO_FRIDAY_HOTFIX,
+  [SCENARIO_GREENFIELD.id]: SCENARIO_GREENFIELD,
+  [SCENARIO_RUNAWAY_AGENT.id]: SCENARIO_RUNAWAY_AGENT,
 };
 
 /**

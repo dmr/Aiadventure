@@ -3,8 +3,26 @@ import {
   resolveEnding,
   SCENARIO_FRIDAY_HOTFIX,
   SCENARIOS,
+  type Scenario,
   type ScenarioEnding,
 } from './scenarios';
+
+// Walk every decision in a scenario taking the option chosen by `pick`,
+// accumulating score + tags, and resolve the resulting ending.
+function playPath(scenario: Scenario, pick: 'best' | 'worst') {
+  let score = 0;
+  const tags = new Set<string>();
+  for (const beat of scenario.beats) {
+    if (beat.kind !== 'decision') continue;
+    const sorted = [...beat.options].sort((a, b) =>
+      pick === 'best' ? b.score - a.score : a.score - b.score,
+    );
+    const opt = sorted[0];
+    score += opt.score;
+    opt.tags?.forEach((t) => tags.add(t));
+  }
+  return resolveEnding(scenario.endings, score, tags);
+}
 
 describe('resolveEnding', () => {
   const endings: ScenarioEnding[] = [
@@ -42,6 +60,39 @@ describe('resolveEnding', () => {
     ];
     expect(resolveEnding(withExclude, 8, ['cheated']).title).toBe('Tainted');
     expect(resolveEnding(withExclude, 8, []).title).toBe('Clean');
+  });
+});
+
+describe('all scenarios (data-driven integrity)', () => {
+  const entries = Object.entries(SCENARIOS);
+
+  it('registers each scenario under its own id', () => {
+    for (const [id, scenario] of entries) {
+      expect(scenario.id).toBe(id);
+    }
+  });
+
+  it.each(entries)('%s is structurally valid', (_id, scenario) => {
+    const decisions = scenario.beats.filter((b) => b.kind === 'decision');
+    expect(decisions.length).toBeGreaterThan(0);
+    expect(scenario.endings.length).toBeGreaterThan(0);
+
+    for (const beat of decisions) {
+      expect(beat.options.length).toBeGreaterThanOrEqual(2);
+      for (const opt of beat.options) {
+        expect(opt.feedback.length).toBeGreaterThan(0);
+        expect(Number.isFinite(opt.score)).toBe(true);
+      }
+    }
+
+    // The last ending must be an unconstrained catch-all so a path always resolves.
+    const last = scenario.endings[scenario.endings.length - 1];
+    expect(last.requiresAll ?? last.requiresAny ?? last.minScore ?? last.maxScore).toBeUndefined();
+  });
+
+  it.each(entries)('%s: best path → 🏆, worst path → 🔴', (_id, scenario) => {
+    expect(playPath(scenario, 'best').icon).toBe('🏆');
+    expect(playPath(scenario, 'worst').icon).toBe('🔴');
   });
 });
 
