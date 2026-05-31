@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm coffee shop palette */
+    --background: 33 60% 94%;
+    --foreground: 22 35% 13%;
+    --card: 38 50% 98%;
+    --card-foreground: 22 35% 13%;
+    --popover: 38 50% 98%;
+    --popover-foreground: 22 35% 13%;
+    --primary: 22 50% 48%;
+    --primary-foreground: 38 60% 96%;
+    --secondary: 30 30% 88%;
+    --secondary-foreground: 22 35% 13%;
+    --muted: 30 25% 90%;
+    --muted-foreground: 22 20% 38%;
+    --accent: 30 50% 80%;
+    --accent-foreground: 22 35% 13%;
+    --destructive: 8 60% 50%;
+    --destructive-foreground: 38 60% 96%;
+    --border: 28 20% 80%;
+    --input: 28 20% 80%;
+    --ring: 22 50% 48%;
+    --radius: 0.75rem;
+
+    --sage: 110 18% 47%;
+    --terracotta: 16 60% 56%;
+    --caramel: 30 50% 65%;
+    --cream: 38 50% 96%;
+    --ink: 22 35% 13%;
+    --ink-soft: 22 25% 28%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(at 22% 14%, hsl(30 50% 88%) 0px, transparent 50%),
+      radial-gradient(at 86% 76%, hsl(20 60% 90%) 0px, transparent 50%);
+    overscroll-behavior: none;
+  }
+  .display-font { font-family: 'Bricolage Grotesque', sans-serif; font-variation-settings: 'opsz' 32; letter-spacing: -0.02em; }
+}
+
+canvas.pixel { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+@keyframes float-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.float-in { animation: float-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+@keyframes door-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.95; transform: scale(1.08); }
+}
+@keyframes door-arrow-bob {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(0, -2px); }
+}
+
+:focus-visible { outline: 2px solid hsl(var(--terracotta)); outline-offset: 2px; }
+
+.no-select { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+
+/* Custom slider for editor */
+.editor-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 8px;
+  background: hsl(var(--secondary));
+  border-radius: 9999px; outline: none;
+}
+.editor-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  border: 3px solid hsl(var(--cream));
+  box-shadow: 0 2px 6px hsl(22 35% 13% / 0.2);
+  cursor: pointer;
+}
+.editor-slider::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  border: 3px solid hsl(var(--cream));
+  box-shadow: 0 2px 6px hsl(22 35% 13% / 0.2);
+  cursor: pointer;
+}
+
+.tile-floor-wood {
+  background-color: #d6b58a;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0px, transparent 31px, rgba(110, 70, 40, 0.18) 31px, rgba(110, 70, 40, 0.18) 32px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 95px, rgba(110, 70, 40, 0.12) 95px, rgba(110, 70, 40, 0.12) 96px);
+}
+.tile-floor-tile {
+  background-color: #e8dccb;
+  background-image:
+    linear-gradient(45deg, rgba(0,0,0,0.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0,0,0,0.04) 25%, transparent 25%);
+  background-size: 32px 32px;
+}
+.tile-floor-grass {
+  background-color: #8aaa6a;
+  background-image: radial-gradient(circle, #6b8b4d 1px, transparent 1.5px);
+  background-size: 8px 8px;
+}
+.tile-floor-stone {
+  background-color: #b8a890;
+  background-image:
+    radial-gradient(circle at 30% 30%, rgba(0,0,0,0.06) 1px, transparent 2px),
+    radial-gradient(circle at 70% 70%, rgba(0,0,0,0.06) 1px, transparent 2px);
+  background-size: 16px 16px;
+}
+.tile-wall { background: #5a3e28; }
+.tile-water { background: linear-gradient(135deg, #6ba8c4, #95c5d6, #6ba8c4); background-size: 32px 32px; }
