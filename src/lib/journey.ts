@@ -30,6 +30,9 @@ export const SIM_REWARD = 'sim-survived';
 export type Role = 'dev' | 'lead' | 'curious';
 export type Entry = 'tour' | 'sim';
 
+/** Story track chosen up front. */
+export type Track = 'cafe' | 'einkauf';
+
 export const ROLE_LABELS: Record<Role, string> = {
   dev: 'Entwickler:in',
   lead: 'Lead / EM',

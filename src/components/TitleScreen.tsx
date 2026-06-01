@@ -73,6 +73,8 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
             <ul className="flex-1 min-h-0 overflow-y-auto space-y-2 text-left -mx-1 px-1">
               {ordered.map((s) => {
                 const p = journeyProgress(s.completedLessons, s.misc);
+                const isEinkauf = s.track === 'einkauf';
+                const tasks = s.misc.filter((m) => m.startsWith('task:')).length;
                 return (
                   <li key={s.id}>
                     <button
@@ -85,10 +87,11 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold leading-tight truncate flex items-center gap-1">
                           {s.name}
-                          {p.certificateEarned && <Trophy className="w-3.5 h-3.5 text-primary shrink-0" />}
+                          {!isEinkauf && p.certificateEarned && <Trophy className="w-3.5 h-3.5 text-primary shrink-0" />}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          Stufe {p.stagesDone}/{p.totalStages} · {fmtPlaytime(s.playtimeMs)} · {relTime(s.lastPlayedAt)}
+                          {isEinkauf ? `🛒 Einkauf · ${tasks}/3` : `☕ Stufe ${p.stagesDone}/${p.totalStages}`}
+                          {' · '}{fmtPlaytime(s.playtimeMs)} · {relTime(s.lastPlayedAt)}
                         </p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />

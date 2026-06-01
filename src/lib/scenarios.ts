@@ -2,6 +2,8 @@
 // A scenario is a linear sequence of "beats" with embedded decisions.
 // Decisions collect score and tags, which determine the ending.
 
+import { PROCUREMENT_TASKS } from './procurement';
+
 export type ScenarioBeat =
   | NarrationBeat
   | ClaudeBeat
@@ -965,6 +967,8 @@ export const SCENARIOS: Record<string, Scenario> = {
   [SCENARIO_GREENFIELD.id]: SCENARIO_GREENFIELD,
   [SCENARIO_RUNAWAY_AGENT.id]: SCENARIO_RUNAWAY_AGENT,
   [SCENARIO_MANAGER_ROLLOUT.id]: SCENARIO_MANAGER_ROLLOUT,
+  // "KI im Einkauf" story track
+  ...Object.fromEntries(PROCUREMENT_TASKS.map((t) => [t.id, t.scenario])),
 };
 
 /**

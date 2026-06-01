@@ -7,6 +7,7 @@ import {
   patchProgress,
   recordVisit,
   addPlaytime,
+  addReward,
   deleteSession,
 } from './sessions';
 import { DEFAULT_AVATAR } from './avatar';
@@ -57,6 +58,18 @@ describe('sessions', () => {
     const s = createSession({ name: 'A', avatar: DEFAULT_AVATAR });
     deleteSession(s.id);
     expect(getSession(s.id)).toBeNull();
+  });
+
+  it('persists the story track', () => {
+    const s = createSession({ name: 'A', avatar: DEFAULT_AVATAR, track: 'einkauf' });
+    expect(getSession(s.id)?.track).toBe('einkauf');
+  });
+
+  it('addReward appends a token once (deduped)', () => {
+    const s = createSession({ name: 'A', avatar: DEFAULT_AVATAR });
+    addReward(s.id, 'task:einkauf-dsgvo');
+    addReward(s.id, 'task:einkauf-dsgvo');
+    expect(getSession(s.id)?.misc).toEqual(['task:einkauf-dsgvo']);
   });
 
   it('migrates a legacy single-save into a session', () => {

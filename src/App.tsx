@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { TitleScreen } from '@/components/TitleScreen';
+import { StorySelect } from '@/components/StorySelect';
 import { RoleSelect } from '@/components/RoleSelect';
 import { AvatarEditor } from '@/components/AvatarEditor';
 import { GameScreen } from '@/components/GameScreen';
+import { ProcurementHub } from '@/components/ProcurementHub';
 import { PwaReloadPrompt } from '@/components/PwaReloadPrompt';
 import { DEFAULT_AVATAR, type AvatarConfig } from '@/lib/avatar';
 import type { Gender } from '@/lib/storage';
-import type { Role, Entry } from '@/lib/journey';
+import type { Role, Entry, Track } from '@/lib/journey';
 import {
   loadSessions,
   createSession,
@@ -16,7 +18,7 @@ import {
 } from '@/lib/sessions';
 import { randomName } from '@/lib/names';
 
-type Screen = 'title' | 'role' | 'editor' | 'game';
+type Screen = 'title' | 'story' | 'role' | 'editor' | 'game';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('title');
@@ -35,19 +37,27 @@ function App() {
   const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
   const [name, setName] = useState<string>(() => randomName());
   const [gender, setGender] = useState<Gender | undefined>(undefined);
+  const [track, setTrack] = useState<Track>('cafe');
   const [role, setRole] = useState<Role | undefined>(undefined);
   const [entry, setEntry] = useState<Entry>('tour');
   const avatarChanges = useRef(0);
 
-  // Begin creating a brand-new session: fresh draft → role select → editor.
+  // Begin creating a brand-new session: fresh draft → story select.
   const startNewSession = () => {
     setAvatar(DEFAULT_AVATAR);
     setName(randomName());
     setGender(undefined);
+    setTrack('cafe');
     setRole(undefined);
     setEntry('tour');
     avatarChanges.current = 0;
-    setScreen('role');
+    setScreen('story');
+  };
+
+  // Choose the story: the café track adds a role step; Einkauf skips to the editor.
+  const chooseStory = (t: Track) => {
+    setTrack(t);
+    setScreen(t === 'cafe' ? 'role' : 'editor');
   };
 
   const finishRole = (r: Role, e: Entry) => {
@@ -62,8 +72,9 @@ function App() {
       name: name.trim() || 'Gast',
       avatar,
       gender,
-      role,
-      entry,
+      track,
+      role: track === 'cafe' ? role : undefined,
+      entry: track === 'cafe' ? entry : undefined,
       avatarChanges: avatarChanges.current,
     });
     refreshSessions();
@@ -77,6 +88,7 @@ function App() {
       setAvatar(s.avatar);
       setName(s.name);
       setGender(s.gender);
+      setTrack(s.track ?? 'cafe');
     }
     refreshSessions();
     setScreen('game');
@@ -98,6 +110,7 @@ function App() {
           onNewSession={startNewSession}
         />
       )}
+      {screen === 'story' && <StorySelect onChoose={chooseStory} />}
       {screen === 'role' && <RoleSelect onDone={finishRole} />}
       {screen === 'editor' && (
         <AvatarEditor
@@ -116,7 +129,15 @@ function App() {
           onDone={finishEditor}
         />
       )}
-      {screen === 'game' && playingId && (
+      {screen === 'game' && playingId && track === 'einkauf' && (
+        <ProcurementHub
+          sessionId={playingId}
+          avatar={avatar}
+          name={name || 'Gast'}
+          onExit={exitToTitle}
+        />
+      )}
+      {screen === 'game' && playingId && track !== 'einkauf' && (
         <GameScreen
           sessionId={playingId}
           avatar={avatar}

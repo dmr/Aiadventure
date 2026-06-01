@@ -4,7 +4,7 @@
 
 import type { AvatarConfig } from './avatar';
 import type { Gender } from './storage';
-import type { Role, Entry } from './journey';
+import type { Role, Entry, Track } from './journey';
 import { loadPrefs, loadProgress } from './storage';
 
 const SESSIONS_KEY = 'cafe-campfire-sessions-v1';
@@ -14,6 +14,8 @@ export type Session = {
   name: string;
   avatar: AvatarConfig;
   gender?: Gender;
+  /** story track chosen up front */
+  track?: Track;
   /** chosen role + entry from the start selection (personalisation/analytics) */
   role?: Role;
   entry?: Entry;
@@ -134,6 +136,7 @@ export function createSession(seed: {
   name: string;
   avatar: AvatarConfig;
   gender?: Gender;
+  track?: Track;
   role?: Role;
   entry?: Entry;
   avatarChanges?: number;
@@ -144,6 +147,7 @@ export function createSession(seed: {
     name: seed.name,
     avatar: seed.avatar,
     gender: seed.gender,
+    track: seed.track,
     role: seed.role,
     entry: seed.entry,
     completedLessons: [],
@@ -190,6 +194,13 @@ export function recordVisit(id: string): void {
 export function addPlaytime(id: string, ms: number): void {
   if (ms <= 0) return;
   mutate(id, (s) => ({ ...s, playtimeMs: s.playtimeMs + ms, lastPlayedAt: Date.now() }));
+}
+
+/** Append a reward/completion token to misc (deduped). */
+export function addReward(id: string, token: string): void {
+  mutate(id, (s) =>
+    s.misc.includes(token) ? s : { ...s, misc: [...s.misc, token], lastPlayedAt: Date.now() },
+  );
 }
 
 export function deleteSession(id: string): void {
