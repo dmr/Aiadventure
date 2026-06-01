@@ -1091,6 +1091,10 @@ function RoomRenderer({
         {room.decorations.map((d, i) => (
           <DecorationSprite key={i} d={d} />
         ))}
+        {/* Mark interactable objects so they're clearly distinct from plain decoration. */}
+        {room.interactables.map((o) => (
+          <InteractMarker key={`im-${o.id}`} x={o.x} y={o.y} />
+        ))}
         {room.exits.map((ex, i) => (
           <ExitMarker key={`ex-${i}`} ex={ex} />
         ))}
@@ -1129,6 +1133,42 @@ function Tile({ ch, floorClass }: { ch: string; floorClass: string }) {
     </div>
   );
   return <div className={floorClass} />;
+}
+
+// Visual cue that an object can be interacted with (vs. plain decoration):
+// a soft pulsing halo + a floating quest-style "!" badge.
+function InteractMarker({ x, y }: { x: number; y: number }) {
+  return (
+    <div
+      className="absolute pointer-events-none flex items-start justify-center"
+      style={{
+        left: `${x * TILE_PCT_W}%`,
+        top: `${y * TILE_PCT_H}%`,
+        width: `${TILE_PCT_W}%`,
+        height: `${TILE_PCT_H}%`,
+        zIndex: 4 + y,
+      }}
+    >
+      <span
+        className="absolute inset-[8%] rounded-full animate-pulse"
+        style={{ background: 'radial-gradient(circle, hsl(var(--terracotta) / 0.45) 0%, transparent 68%)' }}
+      />
+      <span
+        className="absolute left-1/2 -translate-x-1/2 rounded-full flex items-center justify-center font-bold text-white"
+        style={{
+          top: '-26%',
+          width: '42%',
+          height: '42%',
+          fontSize: '4.5cqi',
+          lineHeight: 1,
+          background: 'hsl(var(--terracotta))',
+          boxShadow: '0 1px 3px rgba(40,24,16,0.4), 0 0 0 2px hsl(var(--cream) / 0.8)',
+        }}
+      >
+        !
+      </span>
+    </div>
+  );
 }
 
 function DecorationSprite({ d }: { d: { x: number; y: number; emoji: string; scale?: number } }) {
