@@ -26,6 +26,23 @@ export const STAGES: Stage[] = [
 /** misc-token awarded for surviving a Trainings-Simulator */
 export const SIM_REWARD = 'sim-survived';
 
+// ── Role & entry (start selection) ───────────────────────────────────────────
+export type Role = 'dev' | 'lead' | 'curious';
+export type Entry = 'tour' | 'sim';
+
+export const ROLE_LABELS: Record<Role, string> = {
+  dev: 'Entwickler:in',
+  lead: 'Lead / EM',
+  curious: 'Neugierig',
+};
+
+/** Which simulators are highlighted for a role (content filter/recommendation). */
+export function recommendedScenarios(role?: Role): string[] {
+  if (role === 'lead') return ['manager-rollout'];
+  if (role === 'dev') return ['friday-hotfix', 'greenfield-spec'];
+  return [];
+}
+
 export type JourneyProgress = {
   stagesDone: number;
   totalStages: number;

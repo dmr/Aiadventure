@@ -1,18 +1,23 @@
-import { STAGES, type JourneyProgress } from '@/lib/journey';
+import { STAGES, recommendedScenarios, ROLE_LABELS, type JourneyProgress, type Role } from '@/lib/journey';
+import { SCENARIOS } from '@/lib/scenarios';
 import type { RoomId } from '@/lib/world';
-import { Check, Lock, MapPin, Trophy, X, Gamepad2 } from 'lucide-react';
+import { Check, Lock, MapPin, Trophy, X, Gamepad2, Star } from 'lucide-react';
 
 type Props = {
   progress: JourneyProgress;
   currentRoom: RoomId;
   completed: Set<string>;
+  role?: Role;
   onClose: () => void;
   onShowCertificate: () => void;
 };
 
 // The journey overview: always answers "where am I, how far to the goal?".
-export function JourneyMap({ progress, currentRoom, completed, onClose, onShowCertificate }: Props) {
+export function JourneyMap({ progress, currentRoom, completed, role, onClose, onShowCertificate }: Props) {
   const pct = Math.round(progress.ratio * 100);
+  const recommended = recommendedScenarios(role)
+    .map((id) => SCENARIOS[id]?.title)
+    .filter(Boolean);
 
   return (
     <div
@@ -44,6 +49,15 @@ export function JourneyMap({ progress, currentRoom, completed, onClose, onShowCe
             {progress.stagesDone}/{progress.totalStages} Stufen · Simulator {progress.simDone ? '✓' : '—'} · {pct}%
           </p>
         </div>
+
+        {recommended.length > 0 && role && (
+          <div className="mx-4 mb-2 rounded-xl bg-primary/10 border border-primary/30 px-3 py-2 text-xs">
+            <p className="flex items-center gap-1.5 font-medium text-primary">
+              <Star className="h-3.5 w-3.5" /> Für {ROLE_LABELS[role]} empfohlen
+            </p>
+            <p className="text-muted-foreground mt-0.5">{recommended.join(' · ')} — im Cockpit</p>
+          </div>
+        )}
 
         <ol className="px-4 pb-2 space-y-1.5">
           {STAGES.map((s) => {

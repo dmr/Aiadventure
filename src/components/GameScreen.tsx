@@ -100,6 +100,7 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
       facing: s?.facing,
     };
   });
+  const [role] = useState(() => getSession(sessionId)?.role);
   const resumeRoom: RoomId =
     savedProgress.room && savedProgress.room in ROOMS
       ? (savedProgress.room as RoomId)
@@ -703,6 +704,7 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
           progress={progress}
           currentRoom={roomId}
           completed={completedLessons}
+          role={role}
           onClose={() => setShowMap(false)}
           onShowCertificate={() => {
             setShowMap(false);

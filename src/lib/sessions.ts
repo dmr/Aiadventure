@@ -4,6 +4,7 @@
 
 import type { AvatarConfig } from './avatar';
 import type { Gender } from './storage';
+import type { Role, Entry } from './journey';
 import { loadPrefs, loadProgress } from './storage';
 
 const SESSIONS_KEY = 'cafe-campfire-sessions-v1';
@@ -13,6 +14,9 @@ export type Session = {
   name: string;
   avatar: AvatarConfig;
   gender?: Gender;
+  /** chosen role + entry from the start selection (personalisation/analytics) */
+  role?: Role;
+  entry?: Entry;
 
   // progress
   completedLessons: string[];
@@ -130,6 +134,8 @@ export function createSession(seed: {
   name: string;
   avatar: AvatarConfig;
   gender?: Gender;
+  role?: Role;
+  entry?: Entry;
   avatarChanges?: number;
 }): Session {
   const now = Date.now();
@@ -138,8 +144,13 @@ export function createSession(seed: {
     name: seed.name,
     avatar: seed.avatar,
     gender: seed.gender,
+    role: seed.role,
+    entry: seed.entry,
     completedLessons: [],
     misc: [],
+    // "Direkt zum Simulator" drops the player straight into the Cockpit.
+    room: seed.entry === 'sim' ? 'cockpit' : undefined,
+    tile: seed.entry === 'sim' ? { x: 6, y: 8 } : undefined,
     createdAt: now,
     lastPlayedAt: now,
     playtimeMs: 0,

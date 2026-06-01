@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import { TitleScreen } from '@/components/TitleScreen';
+import { RoleSelect } from '@/components/RoleSelect';
 import { AvatarEditor } from '@/components/AvatarEditor';
 import { GameScreen } from '@/components/GameScreen';
 import { PwaReloadPrompt } from '@/components/PwaReloadPrompt';
 import { DEFAULT_AVATAR, type AvatarConfig } from '@/lib/avatar';
 import type { Gender } from '@/lib/storage';
+import type { Role, Entry } from '@/lib/journey';
 import {
   loadSessions,
   createSession,
@@ -14,7 +16,7 @@ import {
 } from '@/lib/sessions';
 import { randomName } from '@/lib/names';
 
-type Screen = 'title' | 'editor' | 'game';
+type Screen = 'title' | 'role' | 'editor' | 'game';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('title');
@@ -33,14 +35,24 @@ function App() {
   const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
   const [name, setName] = useState<string>(() => randomName());
   const [gender, setGender] = useState<Gender | undefined>(undefined);
+  const [role, setRole] = useState<Role | undefined>(undefined);
+  const [entry, setEntry] = useState<Entry>('tour');
   const avatarChanges = useRef(0);
 
-  // Begin creating a brand-new session: fresh draft → editor.
+  // Begin creating a brand-new session: fresh draft → role select → editor.
   const startNewSession = () => {
     setAvatar(DEFAULT_AVATAR);
     setName(randomName());
     setGender(undefined);
+    setRole(undefined);
+    setEntry('tour');
     avatarChanges.current = 0;
+    setScreen('role');
+  };
+
+  const finishRole = (r: Role, e: Entry) => {
+    setRole(r);
+    setEntry(e);
     setScreen('editor');
   };
 
@@ -50,6 +62,8 @@ function App() {
       name: name.trim() || 'Gast',
       avatar,
       gender,
+      role,
+      entry,
       avatarChanges: avatarChanges.current,
     });
     refreshSessions();
@@ -84,6 +98,7 @@ function App() {
           onNewSession={startNewSession}
         />
       )}
+      {screen === 'role' && <RoleSelect onDone={finishRole} />}
       {screen === 'editor' && (
         <AvatarEditor
           config={avatar}

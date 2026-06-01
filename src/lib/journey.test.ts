@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { STAGES, SIM_REWARD, journeyProgress, isStageDone } from './journey';
+import { STAGES, SIM_REWARD, journeyProgress, isStageDone, recommendedScenarios } from './journey';
 import { LESSONS } from './lessons';
 import { ROOMS } from './world';
+import { SCENARIOS } from './scenarios';
 
 describe('journey stages', () => {
   it('has 5 stages numbered 1..5', () => {
@@ -48,5 +49,19 @@ describe('journeyProgress', () => {
   it('isStageDone reflects completion', () => {
     expect(isStageDone(STAGES[0], new Set([STAGES[0].lessonId]))).toBe(true);
     expect(isStageDone(STAGES[0], new Set())).toBe(false);
+  });
+});
+
+describe('recommendedScenarios', () => {
+  it('recommends role-fitting scenarios that all exist', () => {
+    expect(recommendedScenarios('lead')).toContain('manager-rollout');
+    expect(recommendedScenarios('dev').length).toBeGreaterThan(0);
+    expect(recommendedScenarios('curious')).toEqual([]);
+    expect(recommendedScenarios(undefined)).toEqual([]);
+    for (const role of ['dev', 'lead'] as const) {
+      for (const id of recommendedScenarios(role)) {
+        expect(SCENARIOS[id], id).toBeDefined();
+      }
+    }
   });
 });
