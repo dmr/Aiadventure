@@ -6,7 +6,7 @@ import { TitleScreen } from './TitleScreen';
 describe('<TitleScreen>', () => {
   it('renders the title and entry button', () => {
     render(<TitleScreen onStart={() => {}} />);
-    expect(screen.getByRole('heading')).toHaveTextContent(/Campfire/i);
+    expect(screen.getByRole('heading')).toHaveTextContent(/Vibe/i);
     expect(screen.getByRole('button', { name: /Reinkommen/i })).toBeInTheDocument();
   });
 

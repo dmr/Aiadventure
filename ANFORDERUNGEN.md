@@ -1,4 +1,4 @@
-# Anforderungsdokument — Café Campfire
+# Anforderungsdokument — Vibe Check
 
 **Interaktives Lernspiel zur Einführung von Claude Code im Team**
 
@@ -17,7 +17,7 @@ muss und *woran* wir das messen.
 
 ## 1. Zweck & Abgrenzung
 
-Café Campfire ist eine clientseitige Single-Page-Web-App (PWA), die KI-Coding
+Vibe Check ist eine clientseitige Single-Page-Web-App (PWA), die KI-Coding
 mit Claude Code spielerisch und ehrlich vermittelt. Es gibt **kein Backend,
 keine Accounts, kein Tracking**. Persistenz ausschließlich lokal (localStorage).
 

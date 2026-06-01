@@ -1,4 +1,4 @@
-# PRD — Café Campfire
+# PRD — Vibe Check
 
 **Ein interaktives Lernspiel zur Einführung von Claude Code im Team**
 

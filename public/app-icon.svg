@@ -1,37 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <!-- Café Campfire app icon — warm coffee palette with a steaming mug + campfire spark -->
+  <!-- Vibe Check app icon — a terminal/chat card with a "passed" checkmark -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#f5e8d0"/>
       <stop offset="1" stop-color="#e8c98a"/>
     </linearGradient>
-    <linearGradient id="mug" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#b3743a"/>
-      <stop offset="1" stop-color="#8a5424"/>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbf6ea"/>
+      <stop offset="1" stop-color="#f1e3c8"/>
     </linearGradient>
   </defs>
 
-  <!-- full-bleed background (safe for maskable: keep motif within centre 80%) -->
   <rect width="512" height="512" fill="url(#bg)"/>
 
-  <!-- steam -->
-  <g stroke="#a9805a" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.7">
-    <path d="M214 150 q-20 -26 0 -52 q20 -26 0 -52"/>
-    <path d="M298 150 q-20 -26 0 -52 q20 -26 0 -52"/>
-  </g>
+  <!-- terminal / chat card (kept inside the maskable safe zone) -->
+  <rect x="116" y="120" width="280" height="244" rx="34" fill="#3d2414"/>
+  <rect x="116" y="120" width="280" height="60" rx="34" fill="#5a3a22"/>
+  <rect x="116" y="150" width="280" height="30" fill="#5a3a22"/>
+  <!-- window dots -->
+  <circle cx="150" cy="150" r="9" fill="#d2693f"/>
+  <circle cx="180" cy="150" r="9" fill="#d9a441"/>
+  <circle cx="210" cy="150" r="9" fill="#6b9e5a"/>
 
-  <!-- mug body -->
-  <rect x="150" y="178" width="172" height="150" rx="34" fill="url(#mug)"/>
-  <!-- coffee surface -->
-  <ellipse cx="236" cy="196" rx="74" ry="20" fill="#3d2414"/>
-  <!-- handle -->
-  <path d="M322 214 q66 0 66 54 q0 54 -66 54" fill="none" stroke="url(#mug)" stroke-width="30" stroke-linecap="round"/>
+  <!-- inner screen -->
+  <rect x="140" y="196" width="232" height="144" rx="16" fill="url(#card)"/>
 
-  <!-- campfire logs + flame under/around the mug as a saucer-fire -->
-  <g transform="translate(0,8)">
-    <rect x="150" y="344" width="172" height="22" rx="11" fill="#6b4423"/>
-    <!-- flame -->
-    <path d="M236 366 c-30 -18 -16 -52 4 -64 c-4 22 14 22 14 40 c10 -6 12 -18 8 -30 c22 16 24 44 -2 60 z" fill="#e07b39"/>
-    <path d="M236 366 c-16 -10 -10 -30 2 -38 c-1 14 9 14 9 24 c6 -4 6 -12 4 -18 c12 10 12 26 -2 36 z" fill="#f3b34d"/>
-  </g>
+  <!-- prompt caret -->
+  <text x="164" y="290" font-family="monospace" font-size="64" font-weight="700" fill="#8a5424">&gt;_</text>
+
+  <!-- big "passed the vibe check" tick badge -->
+  <circle cx="356" cy="344" r="74" fill="#5a9e5a"/>
+  <circle cx="356" cy="344" r="74" fill="none" stroke="#fbf6ea" stroke-width="8"/>
+  <path d="M324 344 l22 24 l44 -52" fill="none" stroke="#fbf6ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -17,23 +17,23 @@ export function TitleScreen({ onStart, playerName, onContinue, onRestart }: Prop
   return (
     <div className="h-[100dvh] w-full flex flex-col items-center justify-center px-6 py-10 relative overflow-hidden">
       {/* Floating decorative elements */}
-      <div className="absolute top-12 left-8 text-5xl opacity-30 animate-pulse" style={{ animationDuration: '3s' }}>☕</div>
-      <div className="absolute top-24 right-12 text-4xl opacity-25" style={{ transform: 'rotate(15deg)' }}>📖</div>
-      <div className="absolute bottom-20 left-12 text-5xl opacity-25" style={{ transform: 'rotate(-10deg)' }}>🪴</div>
-      <div className="absolute bottom-32 right-8 text-4xl opacity-30">🥐</div>
+      <div className="absolute top-12 left-8 text-5xl opacity-30 animate-pulse" style={{ animationDuration: '3s' }}>💻</div>
+      <div className="absolute top-24 right-12 text-4xl opacity-25" style={{ transform: 'rotate(15deg)' }}>🤖</div>
+      <div className="absolute bottom-20 left-12 text-5xl opacity-25" style={{ transform: 'rotate(-10deg)' }}>⌨️</div>
+      <div className="absolute bottom-32 right-8 text-4xl opacity-30">✨</div>
 
       <div className="text-center max-w-md float-in relative z-10">
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">
-          Willkommen im
+          Lernspiel · Claude Code
         </p>
         <h1 className="display-font text-6xl sm:text-7xl font-bold leading-none mb-2">
-          Café
+          Vibe
           <br />
-          <span style={{ color: 'hsl(var(--terracotta))' }}>Campfire</span>
+          <span style={{ color: 'hsl(var(--terracotta))' }}>Check</span>
         </h1>
         <div className="flex items-center justify-center gap-3 my-5">
           <div className="h-px bg-foreground/30 flex-1 max-w-[60px]" />
-          <span className="text-2xl">🔥</span>
+          <span className="text-2xl">✓</span>
           <div className="h-px bg-foreground/30 flex-1 max-w-[60px]" />
         </div>
         {returning ? (
@@ -41,7 +41,7 @@ export function TitleScreen({ onStart, playerName, onContinue, onRestart }: Prop
             <p className="text-base sm:text-lg leading-relaxed mb-8">
               <span className="text-foreground font-medium">Willkommen zurück, {playerName}. 👋</span>
               <br />
-              <span className="text-muted-foreground">Das Lagerfeuer brennt noch — du machst da weiter, wo du warst.</span>
+              <span className="text-muted-foreground">Dein Fortschritt wartet — weiter geht's, wo du warst.</span>
             </p>
             <div className="flex flex-col items-center gap-3">
               <Button
@@ -65,12 +65,12 @@ export function TitleScreen({ onStart, playerName, onContinue, onRestart }: Prop
           <>
             <p className="text-base sm:text-lg leading-relaxed mb-8">
               <span className="text-foreground font-medium">
-                Am Lagerfeuer erzählt man sich Geschichten — hier echte aus echten Codebases.
+                Vibe-Coden fühlt sich großartig an — bis der Build bricht.
               </span>
               <br />
               <span className="text-muted-foreground">
                 In 20 Minuten lernst du, wann Claude Code brilliert, wann es dich reinlegt
-                und wie du den Unterschied steuerst.
+                und wie du den Unterschied erkennst.
               </span>
             </p>
 

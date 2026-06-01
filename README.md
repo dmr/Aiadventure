@@ -1,4 +1,4 @@
-# Café Campfire
+# Vibe Check
 
 Ein interaktives Lernspiel zur Einführung von Claude Code im Team — als
 **offline-fähige PWA** (Vite 8 · React 19 · TypeScript · Tailwind · shadcn/ui).

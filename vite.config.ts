@@ -26,10 +26,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
       },
       manifest: {
-        name: "Café Campfire",
-        short_name: "Campfire",
+        name: "Vibe Check",
+        short_name: "Vibe Check",
         description:
-          "Café Campfire — ein interaktives Lernspiel zur Einführung von Claude Code im Team.",
+          "Vibe Check — ein interaktives Lernspiel zur Einführung von Claude Code im Team.",
         lang: "de",
         theme_color: "#f5e8d0",
         background_color: "#f5e8d0",
