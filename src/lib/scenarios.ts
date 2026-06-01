@@ -768,10 +768,203 @@ export const SCENARIO_RUNAWAY_AGENT: Scenario = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Szenario 4: Rollout-Entscheidung — Claude Code fürs Team (Management-Sicht)
+// Lernziel: Pilot statt Mandat, Kosten transparent, ehrliche statt Vanity-Metrik,
+// Guardrails als Team-Standard. Für Leads/EMs statt Hands-on-Coder.
+// ─────────────────────────────────────────────────────────────────────────────
+export const SCENARIO_MANAGER_ROLLOUT: Scenario = {
+  id: 'manager-rollout',
+  title: 'Rollout-Entscheidung: Claude Code fürs Team',
+  subtitle: 'Engineering-Lead · 12 Entwickler:innen · halbes Team skeptisch',
+  briefBy: 'Iris',
+  brief:
+    'Du leitest 12 Entwickler:innen. Die Hälfte ist KI-skeptisch, das Budget ist sichtbar, ' +
+    'und von oben kommt die Frage "bringt das überhaupt was?". Du sollst Claude Code einführen — ' +
+    'ohne Hype, ohne Flurschaden. Wie gehst du vor?',
+  estimatedMin: 7,
+  beats: [
+    { kind: 'system', text: '🗓️ Montag · Leadership-Sync · "AI-Tooling: euer Plan?"', variant: 'info' },
+    {
+      kind: 'narration',
+      text:
+        'Du hast Budget-Freigabe für ein Quartal. Skepsis im Team ist real — und teils berechtigt. ' +
+        'Dein erster Zug entscheidet, ob die Einführung Vertrauen aufbaut oder verbrennt.',
+    },
+    {
+      kind: 'decision',
+      prompt: 'Wie startest du den Rollout?',
+      options: [
+        {
+          label: 'Pilot mit 2–3 Freiwilligen an echten, gut abgegrenzten Tasks',
+          hint: 'Evidenz schlagen Ansage',
+          feedback: '✓ Freiwillige liefern echte Wins, die das Team selbst sehen kann. Adoption wächst von innen.',
+          tags: ['pilot'],
+          score: 3,
+          followUp: {
+            kind: 'system',
+            text: '📈 Woche 2: Der Pilot zeigt im Team-Demo zwei konkrete Wins (Express-Migration, Test-Backfill). Neugier steigt.',
+            variant: 'ok',
+          },
+        },
+        {
+          label: 'Mandat von oben: ab Montag arbeiten alle damit',
+          hint: 'Schnell flächendeckend',
+          feedback: '✗ Zwang gegen Skepsis erzeugt Widerstand, nicht Können. Du verlierst genau die, die du überzeugen musst.',
+          tags: ['top_down'],
+          score: -3,
+          followUp: {
+            kind: 'system',
+            text: '🚫 Backlash: Skeptiker fühlen sich überfahren und teilen Fail-Screenshots. Die echte Nutzung geht gegen null.',
+            variant: 'error',
+          },
+        },
+        {
+          label: 'Erst Team-Standard definieren (CLAUDE.md, Guardrails), dann öffnen',
+          hint: 'Leitplanken vor Tempo',
+          feedback: '✓ Solide Grundlage. Achte nur darauf, dass die Doku nicht zum Selbstzweck wird, bevor jemand startet.',
+          tags: ['guardrails_first'],
+          score: 2,
+        },
+      ],
+    },
+    {
+      kind: 'decision',
+      prompt: 'Wie gehst du mit Budget & Kosten um?',
+      options: [
+        {
+          label: 'Token-Budget pro Team sichtbar machen, Kosten-pro-Win besprechen',
+          hint: 'Transparenz schafft Vertrauen',
+          feedback: '✓ Kosten neben Nutzen stellen entzieht der "zu teuer"-Angst den Boden — mit Daten statt Bauchgefühl.',
+          tags: ['cost_transparent'],
+          score: 3,
+        },
+        {
+          label: 'Unlimited, Hauptsache schnell — Kosten später',
+          hint: 'Reibung vermeiden',
+          feedback: '⚠️ Unsichtbare Kosten werden zur bösen Überraschung — und zum Argument der Skeptiker.',
+          tags: ['cost_blind'],
+          score: -2,
+          followUp: {
+            kind: 'system',
+            text: '💸 Monatsende: 4.000 € Mehrkosten durch einen unbeaufsichtigten Agent-Lauf. Finance fragt nach.',
+            variant: 'warn',
+          },
+        },
+        {
+          label: 'Konservatives Limit zum Start, später nachjustieren',
+          hint: 'Klein anfangen',
+          feedback: '✓ Vernünftig. Ein Limit verhindert Ausreißer, solange das Team Routine aufbaut.',
+          tags: ['conservative'],
+          score: 1,
+        },
+      ],
+    },
+    {
+      kind: 'decision',
+      prompt: 'Wie berichtest du den Wert nach oben?',
+      options: [
+        {
+          label: 'Ehrlich: qualitative Wins + Lead-Time auf gepilotete Task-Typen',
+          hint: 'Belastbar statt beeindruckend',
+          feedback: '✓ Hält jeder Nachfrage stand und baut langfristig Glaubwürdigkeit auf.',
+          tags: ['honest_metrics'],
+          score: 3,
+        },
+        {
+          label: '"Wir sind jetzt 40 % schneller" melden',
+          hint: 'Eine Zahl, die zieht',
+          feedback: '✗ Eine Vanity-Zahl ohne Basis fällt beim ersten Nachhaken in sich zusammen — und nimmt dein Vertrauen mit.',
+          tags: ['vanity_metric'],
+          score: -3,
+          followUp: {
+            kind: 'system',
+            text: '📉 Nachfrage aus der Leitung: "Woran gemessen?" Die Zahl hält nicht. Vertrauen bei Team UND Leitung beschädigt.',
+            variant: 'error',
+          },
+        },
+        {
+          label: 'Erstmal gar nicht messen — "fühlt sich gut an"',
+          hint: 'Abwarten',
+          feedback: '⚠️ Ohne jede Evidenz bleibt die Einführung angreifbar. Mindestens ein paar ehrliche Signale brauchst du.',
+          tags: ['no_measure'],
+          score: 0,
+        },
+      ],
+    },
+    {
+      kind: 'decision',
+      prompt: 'Wie verankerst du Qualität & Vertrauen dauerhaft?',
+      options: [
+        {
+          label: 'Review-Pflicht + Tests/Hooks als Standard, Auto-Accept nur mit Netz',
+          hint: 'Autonomie braucht Leitplanken',
+          feedback: '✓ Guardrails als Team-Norm machen Tempo legitim, statt es zu riskieren.',
+          tags: ['guardrails'],
+          score: 3,
+        },
+        {
+          label: 'Jede:r macht es, wie er/sie will',
+          hint: 'Maximale Freiheit',
+          feedback: '⚠️ Ohne gemeinsame Norm driften Qualität und Vertrauen auseinander.',
+          tags: ['laissez_faire'],
+          score: -1,
+        },
+        {
+          label: 'Regelmäßiges Show-and-Tell: gute UND schlechte Erfahrungen teilen',
+          hint: 'Lernkultur statt Hype',
+          feedback: '✓ Geteilte Failures beschleunigen Lernen mehr als geteilte Erfolge — und entwaffnen Skepsis ehrlich.',
+          tags: ['learning_culture'],
+          score: 2,
+        },
+      ],
+    },
+  ],
+  endings: [
+    {
+      requiresAny: ['top_down', 'vanity_metric', 'cost_blind'],
+      icon: '🔴',
+      title: 'Rollout verbrannt',
+      lesson:
+        'Mandat statt Pilot, Vanity-Zahl statt Evidenz, Kosten im Blindflug — die Einführung hat Vertrauen zerstört statt aufgebaut. ' +
+        'Lesson: Bei einem skeptischen Team gewinnt man mit echten, kleinen Wins, transparenten Kosten und ehrlichen Zahlen, nicht mit Druck.',
+    },
+    {
+      requiresAll: ['pilot', 'honest_metrics', 'guardrails'],
+      minScore: 9,
+      icon: '🏆',
+      title: 'Adoption, die hält',
+      lesson:
+        'Pilot lieferte Evidenz, Kosten waren transparent, Zahlen ehrlich, Guardrails Standard. ' +
+        'Die Skeptiker wurden zu Mitgestaltern — und der Wert hält jeder Nachfrage stand. So führt man KI-Tooling ein.',
+    },
+    {
+      minScore: 6,
+      icon: '🟢',
+      title: 'Solide eingeführt',
+      lesson: 'Gute Grundlage, das Team zieht mit. Nächster Schritt: noch belastbarere Signale und Failures bewusster teilen.',
+    },
+    {
+      minScore: 2,
+      icon: '🟡',
+      title: 'Wackelige Einführung',
+      lesson:
+        'Es läuft, aber getragen von wenigen. Ohne ehrliche Messung und gemeinsame Guardrails bleibt die Einführung fragil.',
+    },
+    {
+      icon: '🟠',
+      title: 'Verpufft',
+      lesson:
+        'Viel Aktivität, wenig Verankerung — die Einführung droht zu versanden. Pilot, transparente Kosten und ehrliche Metriken sind der Hebel.',
+    },
+  ],
+};
+
 export const SCENARIOS: Record<string, Scenario> = {
   [SCENARIO_FRIDAY_HOTFIX.id]: SCENARIO_FRIDAY_HOTFIX,
   [SCENARIO_GREENFIELD.id]: SCENARIO_GREENFIELD,
   [SCENARIO_RUNAWAY_AGENT.id]: SCENARIO_RUNAWAY_AGENT,
+  [SCENARIO_MANAGER_ROLLOUT.id]: SCENARIO_MANAGER_ROLLOUT,
 };
 
 /**
