@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_AVATAR,
   randomAvatar,
+  buildFromGender,
   SKIN_COLORS,
   HAIR_COLORS,
   HAIR_STYLES,
@@ -42,5 +43,14 @@ describe('avatar config', () => {
 
   it('different seeds generally produce different avatars', () => {
     expect(randomAvatar(1)).not.toEqual(randomAvatar(2));
+  });
+});
+
+describe('buildFromGender', () => {
+  it('maps gender to a body build, defaulting to neutral', () => {
+    expect(buildFromGender('w')).toBe('fem');
+    expect(buildFromGender('m')).toBe('masc');
+    expect(buildFromGender('d')).toBe('neutral');
+    expect(buildFromGender(undefined)).toBe('neutral');
   });
 });

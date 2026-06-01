@@ -11,15 +11,17 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
-import { loadProgress, saveProgress, hasSeenTutorial, markTutorialSeen } from '@/lib/storage';
+import { loadProgress, saveProgress, hasSeenTutorial, markTutorialSeen, type Gender } from '@/lib/storage';
 import { Tutorial } from './Tutorial';
-import type { AvatarConfig } from '@/lib/avatar';
+import { buildFromGender } from '@/lib/avatar';
+import type { AvatarConfig, Build } from '@/lib/avatar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle } from 'lucide-react';
 
 type Props = {
   avatar: AvatarConfig;
   name: string;
+  gender?: Gender;
   onExit: () => void;
 };
 
@@ -72,7 +74,8 @@ const KEY_TO_DIR: Record<string, Dir> = {
   arrowright: 'right', d: 'right',
 };
 
-export function GameScreen({ avatar, name, onExit }: Props) {
+export function GameScreen({ avatar, name, gender, onExit }: Props) {
+  const build = buildFromGender(gender);
   const [roomId, setRoomId] = useState<RoomId>('eingang');
   const [tile, setTile] = useState<Tile>({ x: 6, y: 7 });
   const [facing, setFacing] = useState<Dir>('up');
@@ -389,7 +392,7 @@ export function GameScreen({ avatar, name, onExit }: Props) {
       <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0">
-            <AvatarCanvas config={avatar} size={36} facing="down" />
+            <AvatarCanvas config={avatar} size={36} facing="down" build={build} />
           </div>
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground leading-tight">{name}</p>
@@ -456,6 +459,7 @@ export function GameScreen({ avatar, name, onExit }: Props) {
             walking={moving}
             walkFrame={walkFrame}
             avatar={avatar}
+            build={build}
           />
           <div
             key={roomId}
@@ -872,7 +876,7 @@ function SourcesStepView({ step }: { step: SourcesStep }) {
 
 // ─── Room renderer ──────────────────────────────────────────────────────────
 function RoomRenderer({
-  room, tile, facing, walking, walkFrame, avatar,
+  room, tile, facing, walking, walkFrame, avatar, build,
 }: {
   room: RoomDef;
   tile: Tile;
@@ -880,6 +884,7 @@ function RoomRenderer({
   walking: boolean;
   walkFrame: number;
   avatar: AvatarConfig;
+  build: Build;
 }) {
   return (
     <div
@@ -905,7 +910,7 @@ function RoomRenderer({
         {room.npcs.map((npc) => (
           <NpcSprite key={npc.id} npc={npc} />
         ))}
-        <PlayerSprite tile={tile} facing={facing} walking={walking} walkFrame={walkFrame} avatar={avatar} />
+        <PlayerSprite tile={tile} facing={facing} walking={walking} walkFrame={walkFrame} avatar={avatar} build={build} />
       </div>
     </div>
   );
@@ -1050,9 +1055,9 @@ function NpcSprite({ npc }: { npc: NpcDef }) {
 }
 
 function PlayerSprite({
-  tile, facing, walking, walkFrame, avatar,
+  tile, facing, walking, walkFrame, avatar, build,
 }: {
-  tile: Tile; facing: Dir; walking: boolean; walkFrame: number; avatar: AvatarConfig;
+  tile: Tile; facing: Dir; walking: boolean; walkFrame: number; avatar: AvatarConfig; build: Build;
 }) {
   const w = TILE_PCT_W * SPRITE_TILES;
   const h = TILE_PCT_H * SPRITE_TILES;
@@ -1073,6 +1078,7 @@ function PlayerSprite({
         config={avatar}
         size="100%"
         facing={facing}
+        build={build}
         walking={walking}
         frame={walkFrame}
       />

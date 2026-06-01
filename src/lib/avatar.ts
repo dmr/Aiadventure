@@ -61,13 +61,22 @@ function mulberry32(a: number) {
 
 export const AVATAR_SIZE = 32;
 
+/** Body build — optional, derived from the (optional) gender/Anrede choice. */
+export type Build = 'fem' | 'masc' | 'neutral';
+
+export function buildFromGender(gender?: 'w' | 'm' | 'd'): Build {
+  if (gender === 'w') return 'fem';
+  if (gender === 'm') return 'masc';
+  return 'neutral';
+}
+
 // Main draw function
 export function drawAvatar(
   ctx: CanvasRenderingContext2D,
   cfg: AvatarConfig,
-  opts: { walking?: boolean; frame?: number; facing?: 'down' | 'up' | 'left' | 'right' } = {}
+  opts: { walking?: boolean; frame?: number; facing?: 'down' | 'up' | 'left' | 'right'; build?: Build } = {}
 ) {
-  const { walking = false, frame = 0, facing = 'down' } = opts;
+  const { walking = false, frame = 0, facing = 'down', build = 'neutral' } = opts;
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
 
@@ -93,20 +102,30 @@ export function drawAvatar(
   rect(ctx, 12, 26 + legAOffset + bob, 3, 4);
   rect(ctx, 17, 26 + legBOffset + bob, 3, 4);
 
-  // Body / shirt
+  // Body / shirt — shoulder width varies subtly by build (centred on x=16).
+  // 'neutral' reproduces the original geometry exactly.
+  const shoulderX = build === 'masc' ? 9 : build === 'fem' ? 11 : 10;
+  const shoulderW = build === 'masc' ? 14 : build === 'fem' ? 10 : 12;
+  const armLX = shoulderX - 2;
+  const armRX = shoulderX + shoulderW;
   ctx.fillStyle = shirtShade;
-  rect(ctx, 10, 18 + bob, 12, 8); // base shirt
+  rect(ctx, shoulderX, 18 + bob, shoulderW, 8); // base shirt
   ctx.fillStyle = shirt;
-  rect(ctx, 11, 18 + bob, 10, 7); // shirt highlight
+  rect(ctx, shoulderX + 1, 18 + bob, shoulderW - 2, 7); // shirt highlight
+  // Hint of a waist for 'fem' (taper the lower torso by 1px each side).
+  if (build === 'fem') {
+    ctx.clearRect(shoulderX, 24 + bob, 1, 2);
+    ctx.clearRect(shoulderX + shoulderW - 1, 24 + bob, 1, 2);
+  }
 
   // Arms
   ctx.fillStyle = shirt;
-  rect(ctx, 8, 19 + bob, 2, 5);
-  rect(ctx, 22, 19 + bob, 2, 5);
+  rect(ctx, armLX, 19 + bob, 2, 5);
+  rect(ctx, armRX, 19 + bob, 2, 5);
   // Hands
   ctx.fillStyle = skin;
-  rect(ctx, 8, 24 + bob, 2, 2);
-  rect(ctx, 22, 24 + bob, 2, 2);
+  rect(ctx, armLX, 24 + bob, 2, 2);
+  rect(ctx, armRX, 24 + bob, 2, 2);
 
   // Neck
   ctx.fillStyle = skinShade;

@@ -45,6 +45,7 @@ function App() {
         <GameScreen
           avatar={avatar}
           name={name || 'Gast'}
+          gender={gender}
           onExit={() => setScreen('title')}
         />
       )}

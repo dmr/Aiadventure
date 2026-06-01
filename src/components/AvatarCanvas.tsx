@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { drawAvatar, AVATAR_SIZE } from '@/lib/avatar';
-import type { AvatarConfig } from '@/lib/avatar';
+import type { AvatarConfig, Build } from '@/lib/avatar';
 
 type Props = {
   config: AvatarConfig;
@@ -9,6 +9,7 @@ type Props = {
   walking?: boolean;
   frame?: number;
   facing?: 'down' | 'up' | 'left' | 'right';
+  build?: Build;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export function AvatarCanvas({
   walking = false,
   frame = 0,
   facing = 'down',
+  build = 'neutral',
   className,
 }: Props) {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -27,8 +29,8 @@ export function AvatarCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    drawAvatar(ctx, config, { walking, frame, facing });
-  }, [config, walking, frame, facing]);
+    drawAvatar(ctx, config, { walking, frame, facing, build });
+  }, [config, walking, frame, facing, build]);
 
   const sizeValue = typeof size === 'number' ? `${size}px` : size;
 
