@@ -637,7 +637,7 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
           )}
           <div
             key={roomId}
-            className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-card/85 backdrop-blur-sm border text-xs font-medium pointer-events-none whitespace-nowrap"
+            className="absolute top-2 left-1/2 -translate-x-1/2 max-w-[88%] px-3 py-1 rounded-full bg-card/90 backdrop-blur-sm border text-xs font-semibold text-center pointer-events-none"
             style={{ animation: 'float-in 0.5s ease both' }}
           >
             {room.subtitle}
@@ -1073,6 +1073,9 @@ function RoomRenderer({
   walkFrame: number;
   avatar: AvatarConfig;
 }) {
+  // Tiles that carry an interactable → their decoration stays prominent;
+  // everything else is plain background and gets dimmed.
+  const interactiveTiles = new Set(room.interactables.map((o) => `${o.x},${o.y}`));
   return (
     <div
       className="absolute inset-0"
@@ -1089,7 +1092,7 @@ function RoomRenderer({
       )}
       <div className="absolute inset-0 pointer-events-none">
         {room.decorations.map((d, i) => (
-          <DecorationSprite key={i} d={d} />
+          <DecorationSprite key={i} d={d} interactive={interactiveTiles.has(`${d.x},${d.y}`)} />
         ))}
         {/* Mark interactable objects so they're clearly distinct from plain decoration. */}
         {room.interactables.map((o) => (
@@ -1171,8 +1174,15 @@ function InteractMarker({ x, y }: { x: number; y: number }) {
   );
 }
 
-function DecorationSprite({ d }: { d: { x: number; y: number; emoji: string; scale?: number } }) {
+function DecorationSprite({
+  d,
+  interactive = false,
+}: {
+  d: { x: number; y: number; emoji: string; scale?: number };
+  interactive?: boolean;
+}) {
   const scale = d.scale ?? 1;
+  // Plain background props recede; interactive objects stay full-strength.
   return (
     <div
       className="absolute flex items-center justify-center"
@@ -1181,9 +1191,12 @@ function DecorationSprite({ d }: { d: { x: number; y: number; emoji: string; sca
         top: `${d.y * TILE_PCT_H}%`,
         width: `${TILE_PCT_W}%`,
         height: `${TILE_PCT_H}%`,
-        fontSize: `${5.5 * scale}cqi`,
+        fontSize: `${(interactive ? 5.5 : 5) * scale}cqi`,
         lineHeight: 1,
-        filter: 'drop-shadow(0 1px 1px rgba(40,24,16,0.25))',
+        opacity: interactive ? 1 : 0.5,
+        filter: interactive
+          ? 'drop-shadow(0 1px 1px rgba(40,24,16,0.25))'
+          : 'saturate(0.7) drop-shadow(0 1px 1px rgba(40,24,16,0.15))',
         zIndex: 1 + d.y,
       }}
     >

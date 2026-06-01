@@ -39,14 +39,14 @@ export function JourneyMap({ progress, currentRoom, completed, role, onClose, on
           <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Dein Ziel</p>
           <h2 className="display-font text-2xl font-bold leading-tight">Vibe-Check-Zertifikat</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Meistere alle 5 Stufen und bestehe einen Trainings-Simulator.
+            Meistere alle 5 Kapitel und bestehe einen Trainings-Simulator.
           </p>
           {/* progress bar */}
           <div className="mt-3 h-2.5 w-full rounded-full bg-secondary overflow-hidden">
             <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {progress.stagesDone}/{progress.totalStages} Stufen · Simulator {progress.simDone ? '✓' : '—'} · {pct}%
+            {progress.stagesDone}/{progress.totalStages} Kapitel · Simulator {progress.simDone ? '✓' : '—'} · {pct}%
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export function JourneyMap({ progress, currentRoom, completed, role, onClose, on
                 <span className="text-xl shrink-0">{s.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <p className={`font-semibold leading-tight ${done ? '' : current ? 'text-primary' : ''}`}>
-                    Stufe {s.n} · {s.title}
+                    Kapitel {s.n} · {s.title}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">mit {s.mentor}</p>
                 </div>

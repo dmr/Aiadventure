@@ -90,7 +90,7 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
                           {!isEinkauf && p.certificateEarned && <Trophy className="w-3.5 h-3.5 text-primary shrink-0" />}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {isEinkauf ? `🛒 Einkauf · ${tasks}/3` : `☕ Stufe ${p.stagesDone}/${p.totalStages}`}
+                          {isEinkauf ? `🛒 Einkauf · ${tasks}/3` : `☕ Kapitel ${p.stagesDone}/${p.totalStages}`}
                           {' · '}{fmtPlaytime(s.playtimeMs)} · {relTime(s.lastPlayedAt)}
                         </p>
                       </div>

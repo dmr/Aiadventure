@@ -371,7 +371,7 @@ export const SCENARIO_FRIDAY_HOTFIX: Scenario = {
       title: 'Glück gehabt',
       lesson:
         'Die Production läuft wieder — aber durch eine Mischung aus Tool-Vermeidung und Glück. ' +
-        'Wenn das jemand auditiert, gibt es harte Fragen. Lies die Stufen 4 und 5 nochmal — die Werkzeuge sind da.',
+        'Wenn das jemand auditiert, gibt es harte Fragen. Lies die Kapitel 4 und 5 nochmal — die Werkzeuge sind da.',
     },
   ],
 };
@@ -592,7 +592,7 @@ export const SCENARIO_GREENFIELD: Scenario = {
       icon: '🟠',
       title: 'Über-engineered',
       lesson:
-        'Es steht Code da, aber zu viel davon und am Bedarf vorbei. Lies Stufe 3 (Promptcraft) und 4 (Plan Mode) nochmal.',
+        'Es steht Code da, aber zu viel davon und am Bedarf vorbei. Lies Kapitel 3 (Promptcraft) und 4 (Plan Mode) nochmal.',
     },
   ],
 };
@@ -765,7 +765,7 @@ export const SCENARIO_RUNAWAY_AGENT: Scenario = {
       icon: '🟠',
       title: 'Blindflug mit Glück',
       lesson:
-        'Production läuft, aber durch Tool-Vermeidung und Zufall. Lies Stufe 5 (Trust-Calibration) nochmal — die Werkzeuge sind da.',
+        'Production läuft, aber durch Tool-Vermeidung und Zufall. Lies Kapitel 5 (Trust-Calibration) nochmal — die Werkzeuge sind da.',
     },
   ],
 };

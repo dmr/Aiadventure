@@ -89,12 +89,12 @@ const DOOR_LR = 'D...........D'; // both doors
 const SHELF = '#FFFFFFFFFFF#'; // furniture row (bookshelves / consoles)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EINGANG (Stufe 1 — Roya, Use-Cases)
+// EINGANG (Kapitel 1 — Roya, Use-Cases)
 // ─────────────────────────────────────────────────────────────────────────────
 const eingang: RoomDef = {
   id: 'eingang',
   name: 'Lobby',
-  subtitle: 'Stufe 1 · Use-Cases — sprich mit Roya',
+  subtitle: 'Kapitel 1 · Use-Cases',
   floor: 'wood',
   tint: '#e0c896',
   rows: [
@@ -111,7 +111,7 @@ const eingang: RoomDef = {
     { x: 10, y: 11, emoji: '☕' },
   ],
   exits: [
-    { x: 12, y: 6, to: 'cafebar', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 2 →' },
+    { x: 12, y: 6, to: 'cafebar', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Kapitel 2 →' },
   ],
   npcs: [
     {
@@ -151,12 +151,12 @@ const eingang: RoomDef = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CAFEBAR (Stufe 2 — Pavel, Context Window)
+// CAFEBAR (Kapitel 2 — Pavel, Context Window)
 // ─────────────────────────────────────────────────────────────────────────────
 const cafebar: RoomDef = {
   id: 'cafebar',
   name: 'Bibliothek',
-  subtitle: 'Stufe 2 · Context Window — sprich mit Pavel',
+  subtitle: 'Kapitel 2 · Context Window',
   floor: 'tile',
   tint: '#d6c4a8',
   rows: [
@@ -170,8 +170,8 @@ const cafebar: RoomDef = {
     { x: 1, y: 11, emoji: '🪑' }, { x: 11, y: 11, emoji: '🪑' }, { x: 6, y: 11, emoji: '🕯️' },
   ],
   exits: [
-    { x: 0, y: 6, to: 'eingang', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 1' },
-    { x: 12, y: 6, to: 'lounge', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 3 →' },
+    { x: 0, y: 6, to: 'eingang', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Kapitel 1' },
+    { x: 12, y: 6, to: 'lounge', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Kapitel 3 →' },
   ],
   npcs: [
     {
@@ -200,12 +200,12 @@ const cafebar: RoomDef = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LOUNGE (Stufe 3 — Lia, Promptcraft)
+// LOUNGE (Kapitel 3 — Lia, Promptcraft)
 // ─────────────────────────────────────────────────────────────────────────────
 const lounge: RoomDef = {
   id: 'lounge',
   name: 'Atelier',
-  subtitle: 'Stufe 3 · Promptcraft — sprich mit Lia',
+  subtitle: 'Kapitel 3 · Promptcraft',
   floor: 'wood',
   tint: '#e8c885',
   rows: [
@@ -218,8 +218,8 @@ const lounge: RoomDef = {
     { x: 2, y: 11, emoji: '📓' }, { x: 6, y: 11, emoji: '🖋️' }, { x: 10, y: 11, emoji: '📓' },
   ],
   exits: [
-    { x: 0, y: 6, to: 'cafebar', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 2' },
-    { x: 12, y: 6, to: 'garten', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 4 →' },
+    { x: 0, y: 6, to: 'cafebar', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Kapitel 2' },
+    { x: 12, y: 6, to: 'garten', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Kapitel 4 →' },
   ],
   npcs: [
     {
@@ -249,12 +249,12 @@ const lounge: RoomDef = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WERKSTATT (Stufe 4 — Claude Code, mehrere Stationen)
+// WERKSTATT (Kapitel 4 — Claude Code, mehrere Stationen)
 // ─────────────────────────────────────────────────────────────────────────────
 const garten: RoomDef = {
   id: 'garten',
   name: 'Werkstatt',
-  subtitle: 'Stufe 4 · Claude Code — sprich mit Sven, dann arbeite die Stationen ab',
+  subtitle: 'Kapitel 4 · Claude Code',
   floor: 'wood',
   tint: '#e8c98a',
   rows: [
@@ -270,8 +270,8 @@ const garten: RoomDef = {
     { x: 6, y: 1, emoji: '⚙️' }, { x: 1, y: 1, emoji: '📦' }, { x: 11, y: 1, emoji: '🧰' },
   ],
   exits: [
-    { x: 0, y: 6, to: 'lounge', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 3' },
-    { x: 12, y: 6, to: 'cockpit', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 5 →' },
+    { x: 0, y: 6, to: 'lounge', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Kapitel 3' },
+    { x: 12, y: 6, to: 'cockpit', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Kapitel 5 →' },
   ],
   npcs: [
     {
@@ -302,12 +302,12 @@ const garten: RoomDef = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COCKPIT (Stufe 5 — Agent Mode + Trainings-Simulatoren)
+// COCKPIT (Kapitel 5 — Agent Mode + Trainings-Simulatoren)
 // ─────────────────────────────────────────────────────────────────────────────
 const cockpit: RoomDef = {
   id: 'cockpit',
   name: 'Cockpit',
-  subtitle: 'Stufe 5 · Agent Mode — sprich mit Iris, dann probier die Simulator-Terminals',
+  subtitle: 'Kapitel 5 · Agent Mode',
   floor: 'stone',
   tint: '#d8c8b0',
   rows: [
@@ -324,7 +324,7 @@ const cockpit: RoomDef = {
     { x: 10, y: 10, emoji: '💼', label: 'Team-Rollout', scale: 1.3, block: true },
   ],
   exits: [
-    { x: 0, y: 6, to: 'garten', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 4' },
+    { x: 0, y: 6, to: 'garten', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Kapitel 4' },
   ],
   npcs: [
     {

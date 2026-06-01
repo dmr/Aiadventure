@@ -14,7 +14,7 @@ const ROLES: { id: Role; label: string; desc: string; icon: React.ReactNode }[] 
 ];
 
 const ENTRIES: { id: Entry; label: string; desc: string; icon: React.ReactNode }[] = [
-  { id: 'tour', label: 'Voller Rundgang', desc: 'Alle 5 Stufen der Reihe nach', icon: <Map className="w-5 h-5" /> },
+  { id: 'tour', label: 'Voller Rundgang', desc: 'Alle 5 Kapitel der Reihe nach', icon: <Map className="w-5 h-5" /> },
   { id: 'sim', label: 'Direkt zum Simulator', desc: 'Rein ins Cockpit, sofort entscheiden', icon: <Gamepad2 className="w-5 h-5" /> },
 ];
 

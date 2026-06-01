@@ -38,11 +38,11 @@ export const LIA_AVATAR: AvatarConfig = { skin: 2, hairStyle: 1, hairColor: 1, s
 export const SVEN_AVATAR: AvatarConfig = { skin: 3, hairStyle: 5, hairColor: 3, shirt: 1, pants: 5, accessory: 2 };
 export const IRIS_AVATAR: AvatarConfig = { skin: 1, hairStyle: 4, hairColor: 0, shirt: 6, pants: 9, accessory: 1 };
 
-// ─── Stufe 1 — Use-Cases ─────────────────────────────────────────────────────
+// ─── Kapitel 1 — Use-Cases ─────────────────────────────────────────────────────
 export const LESSON_USECASES: Lesson = {
   id: 'usecases', number: 1,
   title: 'Wo KI dir wirklich Zeit spart',
-  subtitle: 'Stufe 1 · Realistische Use-Cases',
+  subtitle: 'Kapitel 1 · Realistische Use-Cases',
   mentor: 'Roya', mentorAvatar: ROYA_AVATAR, badge: '✓ Use-Cases',
   steps: [
     { kind: 'text', lines: [
@@ -77,9 +77,9 @@ export const LESSON_USECASES: Lesson = {
     },
     { kind: 'text', lines: [
       'Roya: "Wenn du das verinnerlichst, gewinnst du sofort 30-50% Zeit auf den richtigen Tasks. Ohne Magie."',
-      'Roya: "Nächste Stufe — Pavel in der Bibliothek — erklärt warum dein Context Window dein eigentlicher Engpass ist. Nicht das Modell."',
+      'Roya: "Nächstes Kapitel — Pavel in der Bibliothek — erklärt warum dein Context Window dein eigentlicher Engpass ist. Nicht das Modell."',
     ]},
-    { kind: 'sources', intro: 'Quellen für diese Stufe:', refs: [
+    { kind: 'sources', intro: 'Quellen für dieses Kapitel:', refs: [
       { title: 'I Gave Claude Code 2.0 Our 3-Week Refactor at 11 PM. At 7 AM, It Was Done.', author: 'Reza Rezvani · Medium', url: 'https://alirezarezvani.medium.com/i-gave-claude-code-2-0-our-3-week-refactor-at-11-pm-at-7-am-it-was-done-34decd54e441', date: 'Oktober 2025' },
       { title: 'The Setup Is the Strategy', author: 'DEV Community / aws-builders', url: 'https://dev.to/aws-builders/the-setup-is-the-strategy-how-i-orchestrated-a-product-migration-with-claude-code-b92', date: 'November 2025' },
       { title: 'How Anthropic engineering teams use Claude Code every day', author: 'CodingScape', url: 'https://codingscape.com/blog/how-anthropic-engineering-teams-use-claude-code-every-day', date: 'Dezember 2025' },
@@ -87,11 +87,11 @@ export const LESSON_USECASES: Lesson = {
   ],
 };
 
-// ─── Stufe 2 — Context Window ────────────────────────────────────────────────
+// ─── Kapitel 2 — Context Window ────────────────────────────────────────────────
 export const LESSON_CONTEXT: Lesson = {
   id: 'context', number: 2,
   title: 'Context Window — was rein muss, was nicht',
-  subtitle: 'Stufe 2 · Context-Management',
+  subtitle: 'Kapitel 2 · Context-Management',
   mentor: 'Pavel', mentorAvatar: PAVEL_AVATAR, badge: '✓ Context Window',
   steps: [
     { kind: 'text', lines: [
@@ -162,15 +162,15 @@ export const LESSON_CONTEXT: Lesson = {
   ],
 };
 
-// ─── Stufe 3 — Promptcraft ───────────────────────────────────────────────────
+// ─── Kapitel 3 — Promptcraft ───────────────────────────────────────────────────
 export const LESSON_PROMPTCRAFT: Lesson = {
   id: 'promptcraft', number: 3,
   title: 'Promptcraft für Devs',
-  subtitle: 'Stufe 3 · Wie du genau das fragst was du brauchst',
+  subtitle: 'Kapitel 3 · Wie du genau das fragst was du brauchst',
   mentor: 'Lia', mentorAvatar: LIA_AVATAR, badge: '✓ Promptcraft',
   steps: [
     { kind: 'text', lines: [
-      'Lia: "Hi. Stufe 3: Promptcraft. Klingt nach Hokuspokus. Ist aber Engineering."',
+      'Lia: "Hi. Kapitel 3: Promptcraft. Klingt nach Hokuspokus. Ist aber Engineering."',
       'Lia: "Dasselbe Modell, derselbe Task — und je nach Prompt: Junk vs. Production-Code. Sechs Hebel, alle wichtig."',
     ]},
     { kind: 'code', caption: 'Hebel 1 · Spezifität',
@@ -223,7 +223,7 @@ export const LESSON_PROMPTCRAFT: Lesson = {
       date: 'August 2025',
     },
     { kind: 'text', lines: [
-      'Lia: "Sven nebenan in der Werkstatt zeigt dir das alles in Aktion — Claude Code im Detail. Die längste Stufe. Lohnt sich."',
+      'Lia: "Sven nebenan in der Werkstatt zeigt dir das alles in Aktion — Claude Code im Detail. Das längste Kapitel. Lohnt sich."',
     ]},
     { kind: 'sources', intro: 'Quellen:', refs: [
       { title: 'Claude Prompting Best Practices', author: 'Anthropic', url: 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices' },
@@ -233,15 +233,15 @@ export const LESSON_PROMPTCRAFT: Lesson = {
   ],
 };
 
-// ─── Stufe 4 Intro — Sven ────────────────────────────────────────────────────
+// ─── Kapitel 4 Intro — Sven ────────────────────────────────────────────────────
 export const LESSON_CC_INTRO: Lesson = {
   id: 'cc-intro', number: 4,
   title: 'Claude Code — die Werkstatt',
-  subtitle: 'Stufe 4 · Übersicht',
+  subtitle: 'Kapitel 4 · Übersicht',
   mentor: 'Sven', mentorAvatar: SVEN_AVATAR, badge: '✓ Claude Code Intro',
   steps: [
     { kind: 'text', lines: [
-      'Sven: "Yo. Stufe 4. Die längste — du bist im Endspurt."',
+      'Sven: "Yo. Kapitel 4. Die längste — du bist im Endspurt."',
       'Sven: "Claude Code ist die agentische CLI. Du beschreibst was du willst, Claude liest, plant, editiert, testet. Du reviewst Diffs."',
       'Sven: "Das große Mindset-Update: vom Tipper zum Spec-Schreiber + Reviewer. Enormer Hebel wenn richtig genutzt, gefährlich wenn nicht."',
       'Sven: "4 Werkbänke im Raum. Jede ist eine Mini-Lektion mit Quiz."',
@@ -251,11 +251,11 @@ export const LESSON_CC_INTRO: Lesson = {
   ],
 };
 
-// ─── Stufe 4.1 — CLAUDE.md ───────────────────────────────────────────────────
+// ─── Kapitel 4.1 — CLAUDE.md ───────────────────────────────────────────────────
 export const LESSON_CLAUDE_MD: Lesson = {
   id: 'claude-md', number: '4.1',
   title: 'CLAUDE.md — der heilige Gral',
-  subtitle: 'Stufe 4.1',
+  subtitle: 'Kapitel 4.1',
   mentor: 'Sven', mentorAvatar: SVEN_AVATAR, badge: '✓ CLAUDE.md',
   steps: [
     { kind: 'text', lines: [
@@ -322,11 +322,11 @@ export const LESSON_CLAUDE_MD: Lesson = {
   ],
 };
 
-// ─── Stufe 4.2 — Plan Mode ──────────────────────────────────────────────────
+// ─── Kapitel 4.2 — Plan Mode ──────────────────────────────────────────────────
 export const LESSON_PLAN_MODE: Lesson = {
   id: 'plan-mode', number: '4.2',
   title: 'Plan Mode + Slash-Commands',
-  subtitle: 'Stufe 4.2',
+  subtitle: 'Kapitel 4.2',
   mentor: 'Sven', mentorAvatar: SVEN_AVATAR, badge: '✓ Plan Mode',
   steps: [
     { kind: 'text', lines: [
@@ -382,11 +382,11 @@ export const LESSON_PLAN_MODE: Lesson = {
   ],
 };
 
-// ─── Stufe 4.3 — Subagents ───────────────────────────────────────────────────
+// ─── Kapitel 4.3 — Subagents ───────────────────────────────────────────────────
 export const LESSON_SUBAGENTS: Lesson = {
   id: 'subagents', number: '4.3',
   title: 'Subagents — Context delegieren',
-  subtitle: 'Stufe 4.3',
+  subtitle: 'Kapitel 4.3',
   mentor: 'Sven', mentorAvatar: SVEN_AVATAR, badge: '✓ Subagents',
   steps: [
     { kind: 'text', lines: [
@@ -455,11 +455,11 @@ Provide line refs + suggested fixes.`,
   ],
 };
 
-// ─── Stufe 4.4 — MCP & Hooks ─────────────────────────────────────────────────
+// ─── Kapitel 4.4 — MCP & Hooks ─────────────────────────────────────────────────
 export const LESSON_MCP_HOOKS: Lesson = {
   id: 'mcp-hooks', number: '4.4',
   title: 'MCP & Hooks — Workflow-Integration',
-  subtitle: 'Stufe 4.4',
+  subtitle: 'Kapitel 4.4',
   mentor: 'Sven', mentorAvatar: SVEN_AVATAR, badge: '✓ MCP & Hooks',
   steps: [
     { kind: 'text', lines: [
@@ -523,7 +523,7 @@ fi`,
     { kind: 'text', lines: [
       'Sven: "Wenn du das alles nutzt — Plan Mode + CLAUDE.md + Subagents + MCP + Hooks — hat dein Workflow ein Sicherheitsnetz auf jeder Ebene."',
       'Sven: "Agentic mit Guardrails heißt: du wirst Reviewer, KI macht die Tipparbeit, Tests sind das Veto."',
-      'Sven: "Du hast die Werkstatt durch. In der Tür rechts wartet Iris im Cockpit — letzte Stufe."',
+      'Sven: "Du hast die Werkstatt durch. In der Tür rechts wartet Iris im Cockpit — letzte Kapitel."',
     ]},
     { kind: 'sources', intro: 'Quellen:', refs: [
       { title: 'I turned on auto-approve in Claude Code and broke CI in 30 minutes', author: 'Kenta Imoto · DEV', url: 'https://dev.to/kenimo49/i-turned-on-auto-approve-in-claude-code-and-broke-ci-in-30-minutes-1g1a', date: 'April 2026' },
@@ -532,19 +532,19 @@ fi`,
   ],
 };
 
-// ─── Stufe 5 — Agent Mode ────────────────────────────────────────────────────
+// ─── Kapitel 5 — Agent Mode ────────────────────────────────────────────────────
 export const LESSON_AGENT_MODE: Lesson = {
   id: 'agent-mode', number: 5,
   title: 'Agent Mode — du wirst Pilot',
-  subtitle: 'Stufe 5 · Mindset & Trust-Calibration',
+  subtitle: 'Kapitel 5 · Mindset & Trust-Calibration',
   mentor: 'Iris', mentorAvatar: IRIS_AVATAR, badge: '✓ Agent Mode',
   steps: [
     { kind: 'text', lines: [
-      'Iris: "Du hast es durchgezogen. Letzte Stufe — und die ist nicht über Tools. Sondern über Haltung."',
+      'Iris: "Du hast es durchgezogen. Letzte Kapitel — und die ist nicht über Tools. Sondern über Haltung."',
       'Iris: "Agent Mode heißt: Claude liest, plant, editiert, testet — autonom, im Loop. Das ist nicht mehr Pair Programming. Du bist Pilot, KI ist die Crew."',
       'Iris: "Der Mindset-Shift: vom Tipper zum Spec-Schreiber + Reviewer. Eine andere Kompetenz. Senior-Devs sind anfangs schlecht darin — gewohnt selbst zu tippen."',
     ]},
-    { kind: 'code', caption: 'Permission Modes — Autonomie-Stufen',
+    { kind: 'code', caption: 'Permission Modes — Autonomie-Kapitel',
       code:
 `# Via Shift+Tab umschaltbar:
 

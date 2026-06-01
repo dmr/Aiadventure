@@ -54,7 +54,7 @@ export function InfoOverlay({ onClose }: Props) {
           <Item
             title="5 · Ziel & Fortschritt"
             thumb={<ProgressThumb />}
-            body="Oben siehst du dein Ziel und den Fortschritt (Stufe X/5). Über 🏆 öffnest du die Karte. Alle 5 Stufen + ein bestandener Simulator = dein Vibe-Check-Zertifikat."
+            body="Oben siehst du dein Ziel und den Fortschritt (Kapitel X/5). Über 🏆 öffnest du die Karte. Alle 5 Kapitel + ein bestandener Simulator = dein Vibe-Check-Zertifikat."
           />
           <Item
             title="6 · Trainings-Simulatoren"

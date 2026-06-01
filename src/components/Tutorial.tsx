@@ -69,7 +69,7 @@ export function Tutorial({ onClose }: Props) {
             title="Ziel"
             body={
               <>
-                Meistere alle <span className="font-medium">5 Stufen</span> und bestehe einen
+                Meistere alle <span className="font-medium">5 Kapitel</span> und bestehe einen
                 <span className="font-medium"> Trainings-Simulator</span> → hol dir das
                 <span className="font-medium"> Vibe-Check-Zertifikat</span>. Dein Fortschritt
                 (oben über <span className="font-medium">🏆</span> einsehbar) wird gespeichert.

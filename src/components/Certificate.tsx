@@ -50,7 +50,7 @@ export function Certificate({ name, avatar, onClose }: Props) {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
                   <Check className="h-3 w-3" strokeWidth={3} />
                 </span>
-                <span>Stufe {s.n}: {s.title}</span>
+                <span>Kapitel {s.n}: {s.title}</span>
               </li>
             ))}
             <li className="flex items-center gap-2">
