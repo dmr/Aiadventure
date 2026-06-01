@@ -1,52 +1,54 @@
+import { useEffect } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
-// Small, unobtrusive PWA status surface:
-//  - confirms "offline ready" once the service worker has cached the shell
-//  - offers a reload when a new version is waiting
-// Styled to match the warm café palette; sits bottom-right, above game UI.
+// How often to ask the browser to check for a freshly deployed version.
+const UPDATE_CHECK_MS = 60_000;
+
+/**
+ * PWA lifecycle:
+ *  - polls for a new deploy so users never sit on a stale cached bundle,
+ *  - auto-applies a new version the moment it's found (one reload), so the app
+ *    is always fresh — important because there's no client-side routing, so the
+ *    SW would otherwise only update on a manual hard refresh,
+ *  - shows a small "offline ready" confirmation once the shell is cached.
+ */
 export function PwaReloadPrompt() {
   const {
     offlineReady: [offlineReady, setOfflineReady],
-    needRefresh: [needRefresh, setNeedRefresh],
+    needRefresh: [needRefresh],
     updateServiceWorker,
-  } = useRegisterSW();
+  } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      if (registration) {
+        setInterval(() => {
+          registration.update().catch(() => {});
+        }, UPDATE_CHECK_MS);
+      }
+    },
+  });
 
-  if (!offlineReady && !needRefresh) return null;
+  // Apply a detected update immediately (skipWaiting + one reload). Progress is
+  // persisted and the player resumes where they were, so this is unobtrusive.
+  useEffect(() => {
+    if (needRefresh) updateServiceWorker(true);
+  }, [needRefresh, updateServiceWorker]);
 
-  const close = () => {
-    setOfflineReady(false);
-    setNeedRefresh(false);
-  };
+  if (!offlineReady) return null;
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 right-4 z-[100] max-w-xs rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg backdrop-blur"
+      className="fixed bottom-4 right-4 z-[100] flex items-center gap-2 rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg backdrop-blur"
     >
-      {needRefresh ? (
-        <div className="flex flex-col gap-2">
-          <span>Eine neue Version ist verfügbar.</span>
-          <div className="flex gap-2">
-            <button
-              className="rounded-md bg-primary px-3 py-1 text-primary-foreground"
-              onClick={() => updateServiceWorker(true)}
-            >
-              Neu laden
-            </button>
-            <button className="rounded-md px-3 py-1 text-muted-foreground" onClick={close}>
-              Später
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2">
-          <span>☕ Offline spielbereit.</span>
-          <button className="ml-auto text-muted-foreground" onClick={close} aria-label="Schließen">
-            ✕
-          </button>
-        </div>
-      )}
+      <span>✓ Offline spielbereit.</span>
+      <button
+        className="ml-auto text-muted-foreground"
+        onClick={() => setOfflineReady(false)}
+        aria-label="Schließen"
+      >
+        ✕
+      </button>
     </div>
   );
 }
