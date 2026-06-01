@@ -84,8 +84,7 @@ export function TitleScreen({ onStart, playerName, onContinue, onRestart }: Prop
             </Button>
 
             <p className="text-xs text-muted-foreground mt-8 leading-relaxed">
-              Steuerung: <kbd className="px-1.5 py-0.5 bg-secondary rounded text-[10px]">WASD</kbd> oder Pfeiltasten
-              {' '}— am Handy: virtueller Joystick.
+              Steuerung: aufs Spielfeld tippen — oder <kbd className="px-1.5 py-0.5 bg-secondary rounded text-[10px]">WASD</kbd> / Joystick.
             </p>
           </>
         )}

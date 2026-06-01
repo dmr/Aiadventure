@@ -7,6 +7,8 @@ import {
   canEnterTile,
   findExitAt,
   nearestInteraction,
+  findPath,
+  adjacentWalkable,
   type RoomId,
 } from './world';
 import { LESSONS } from './lessons';
@@ -75,6 +77,43 @@ describe('nearestInteraction', () => {
 
   it('returns null when nothing is in range', () => {
     expect(nearestInteraction(ROOMS.eingang, 1.5, 1.5)).toBeNull();
+  });
+});
+
+describe('findPath (tap-to-move)', () => {
+  const room = ROOMS.eingang;
+
+  it('returns a contiguous walkable path of adjacent tiles ending at the goal', () => {
+    const start = { x: 6, y: 5 };
+    const goal = { x: 2, y: 2 };
+    const path = findPath(room, start, goal);
+    expect(path).not.toBeNull();
+    const steps = path!;
+    expect(steps[steps.length - 1]).toEqual(goal);
+    let prev = start;
+    for (const step of steps) {
+      expect(canEnterTile(room, step.x, step.y)).toBe(true);
+      expect(Math.abs(step.x - prev.x) + Math.abs(step.y - prev.y)).toBe(1); // orthogonal, one tile
+      prev = step;
+    }
+  });
+
+  it('returns an empty path when already at the goal', () => {
+    expect(findPath(room, { x: 4, y: 4 }, { x: 4, y: 4 })).toEqual([]);
+  });
+
+  it('returns null for an unwalkable goal (wall)', () => {
+    expect(findPath(room, { x: 4, y: 4 }, { x: 0, y: 0 })).toBeNull();
+  });
+});
+
+describe('adjacentWalkable', () => {
+  it('finds a walkable neighbour of a blocked tile (e.g. an NPC)', () => {
+    // Roya occupies (6,4) in the Lobby; her neighbours are open floor.
+    const adj = adjacentWalkable(ROOMS.eingang, 6, 4, { x: 6, y: 6 });
+    expect(adj).not.toBeNull();
+    expect(canEnterTile(ROOMS.eingang, adj!.x, adj!.y)).toBe(true);
+    expect(Math.abs(adj!.x - 6) + Math.abs(adj!.y - 4)).toBe(1);
   });
 });
 

@@ -441,6 +441,71 @@ export function findExitAt(room: RoomDef, x: number, y: number): ExitSpec | unde
   return room.exits.find(e => e.x === x && e.y === y);
 }
 
+export type Point = { x: number; y: number };
+
+/**
+ * Breadth-first shortest path over walkable tiles (reuses `canEnterTile`, so
+ * collision rules never diverge). Returns the list of steps from `start`
+ * (exclusive) to `goal` (inclusive), [] if already there, or null if the goal
+ * is unreachable / not walkable. Used for tap-to-move.
+ */
+export function findPath(
+  room: RoomDef,
+  start: Point,
+  goal: Point,
+): Point[] | null {
+  if (!canEnterTile(room, goal.x, goal.y)) return null;
+  if (start.x === goal.x && start.y === goal.y) return [];
+
+  const key = (x: number, y: number) => y * ROOM_W + x;
+  const visited = new Set<number>([key(start.x, start.y)]);
+  const prev = new Map<number, Point>();
+  const queue: Point[] = [start];
+  const dirs = [
+    { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
+  ];
+
+  while (queue.length) {
+    const cur = queue.shift()!;
+    if (cur.x === goal.x && cur.y === goal.y) {
+      const path: Point[] = [];
+      let c: Point | undefined = cur;
+      while (c && !(c.x === start.x && c.y === start.y)) {
+        path.push(c);
+        c = prev.get(key(c.x, c.y));
+      }
+      return path.reverse();
+    }
+    for (const { dx, dy } of dirs) {
+      const nx = cur.x + dx;
+      const ny = cur.y + dy;
+      const k = key(nx, ny);
+      if (visited.has(k) || !canEnterTile(room, nx, ny)) continue;
+      visited.add(k);
+      prev.set(k, cur);
+      queue.push({ x: nx, y: ny });
+    }
+  }
+  return null;
+}
+
+/** Walkable tile adjacent to (x,y) nearest to `from` — for walking up to an NPC/station. */
+export function adjacentWalkable(
+  room: RoomDef,
+  x: number, y: number,
+  from: Point,
+): Point | null {
+  const candidates = [
+    { x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 },
+  ].filter(p => canEnterTile(room, p.x, p.y));
+  if (!candidates.length) return null;
+  candidates.sort(
+    (a, b) =>
+      Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y),
+  );
+  return candidates[0];
+}
+
 export function nearestInteraction(
   room: RoomDef,
   cx: number, cy: number,

@@ -47,8 +47,9 @@ export function Tutorial({ onClose }: Props) {
             title="Bewegen"
             body={
               <>
-                Am Desktop mit <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd> oder den
-                Pfeiltasten. Am Handy mit dem <span className="font-medium">Joystick</span> unten links.
+                <span className="font-medium">Tipp einfach aufs Spielfeld</span> — deine Figur läuft
+                dorthin. Oder steuere mit <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd> /
+                Pfeiltasten bzw. dem Joystick unten links.
               </>
             }
           />
@@ -57,9 +58,9 @@ export function Tutorial({ onClose }: Props) {
             title="Reden & Erkunden"
             body={
               <>
-                Geh zu einer Figur oder einem leuchtenden Objekt und drück <Kbd>E</Kbd>,{' '}
-                <Kbd>Enter</Kbd> oder <Kbd>Leer</Kbd> — am Handy den großen{' '}
-                <span className="font-medium">⊙</span>-Knopf. Mentor:innen führen dich durch jede Stufe.
+                <span className="font-medium">Tipp direkt auf eine Figur oder Station</span> — du
+                läufst hin und sprichst sie an. Oder geh hin und drück <Kbd>E</Kbd> / <Kbd>Enter</Kbd> /{' '}
+                <Kbd>Leer</Kbd> bzw. den großen <span className="font-medium">⊙</span>-Knopf.
               </>
             }
           />

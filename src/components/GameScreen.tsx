@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type MouseEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { AvatarCanvas } from './AvatarCanvas';
 import { Joystick } from './Joystick';
 import {
   ROOMS, ROOM_W, ROOM_H,
   type RoomId, type RoomDef, type ExitSpec,
-  canEnterTile, findExitAt, nearestInteraction,
+  canEnterTile, findExitAt, nearestInteraction, findPath, adjacentWalkable,
   type NpcDef,
 } from '@/lib/world';
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
@@ -75,6 +75,15 @@ const KEY_TO_DIR: Record<string, Dir> = {
   arrowright: 'right', d: 'right',
 };
 
+// Direction from one tile to an orthogonally-adjacent neighbour (for path steps).
+function dirToward(from: Tile, to: Tile): Dir | null {
+  if (to.x > from.x) return 'right';
+  if (to.x < from.x) return 'left';
+  if (to.y > from.y) return 'down';
+  if (to.y < from.y) return 'up';
+  return null;
+}
+
 export function GameScreen({ avatar, name, gender, onExit }: Props) {
   const build = buildFromGender(gender);
   // Restore previously earned badges/rewards + last position so returning
@@ -124,6 +133,12 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
   }, [completedLessons, misc, roomId, tile, facing]);
 
   const room = ROOMS[roomId];
+
+  // Tap-to-move: a queue of tiles the player auto-walks; optional interact on arrival.
+  const [destination, setDestination] = useState<Tile | null>(null);
+  const pathRef = useRef<Tile[]>([]);
+  const interactOnArriveRef = useRef(false);
+  const fieldRef = useRef<HTMLDivElement | null>(null);
 
   const tileRef = useRef(tile);
   const movingRef = useRef(moving);
@@ -212,9 +227,20 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
   // ── Movement loop ────────────────────────────────────────────────────────
   useEffect(() => {
     let raf = 0;
+    const clearPath = () => {
+      pathRef.current = [];
+      interactOnArriveRef.current = false;
+      setDestination(null);
+    };
     const tryStep = () => {
-      if (!movingRef.current && !dialogRef.current && !sandboxRef.current && !transition) {
-        const dir = currentDir();
+      if (!movingRef.current && !dialogRef.current && !sandboxRef.current && !transition && !tutorialRef.current) {
+        // Manual input (keys/joystick) takes priority and cancels any tap path.
+        let dir = currentDir();
+        if (dir) {
+          if (pathRef.current.length) clearPath();
+        } else if (pathRef.current.length) {
+          dir = dirToward(tileRef.current, pathRef.current[0]);
+        }
         if (dir) {
           if (facingRef.current !== dir) {
             setFacing(dir);
@@ -232,12 +258,31 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
             tileRef.current = target;
             setWalkFrame(f => (f + 1) % 4);
 
+            // Consume this step if it was following the tap-to-move path.
+            const following =
+              pathRef.current.length > 0 &&
+              pathRef.current[0].x === target.x &&
+              pathRef.current[0].y === target.y;
+            if (following) pathRef.current = pathRef.current.slice(1);
+
             window.setTimeout(() => {
               setMoving(false);
               movingRef.current = false;
               const exit = findExitAt(roomRef.current, target.x, target.y);
-              if (exit) triggerRoomChange(exit);
+              if (exit) {
+                clearPath();
+                triggerRoomChange(exit);
+                return;
+              }
+              if (following && pathRef.current.length === 0) {
+                const interact = interactOnArriveRef.current;
+                clearPath();
+                if (interact) triggerInteract();
+              }
             }, MOVE_MS);
+          } else if (pathRef.current.length) {
+            // Path blocked unexpectedly (e.g. world changed) — abandon it.
+            clearPath();
           }
         }
       }
@@ -353,6 +398,49 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
     }
   }, []);
 
+  // Tap-to-move: walk to a tapped tile; tapping a person/station walks adjacent
+  // and then interacts. Manual key/joystick input cancels the path (see loop).
+  const goTo = useCallback((tx: number, ty: number) => {
+    const r = roomRef.current;
+    const me = tileRef.current;
+    if (canEnterTile(r, tx, ty)) {
+      const path = findPath(r, me, { x: tx, y: ty });
+      if (path && path.length) {
+        pathRef.current = path;
+        interactOnArriveRef.current = false;
+        setDestination({ x: tx, y: ty });
+      }
+      return;
+    }
+    // Tapped a blocked tile — if it holds an NPC/interactable, approach + interact.
+    const isTarget =
+      r.npcs.some(n => n.x === tx && n.y === ty) ||
+      r.interactables.some(o => o.x === tx && o.y === ty);
+    if (!isTarget) return;
+    const adj = adjacentWalkable(r, tx, ty, me);
+    if (!adj) return;
+    const path = findPath(r, me, adj);
+    if (!path) return;
+    setDestination({ x: tx, y: ty });
+    if (path.length === 0) {
+      triggerInteract(); // already standing next to it
+    } else {
+      pathRef.current = path;
+      interactOnArriveRef.current = true;
+    }
+  }, [triggerInteract]);
+
+  const onFieldClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    if (dialogRef.current || sandboxRef.current || transition || tutorialRef.current) return;
+    const el = fieldRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const tx = Math.floor(((e.clientX - rect.left) / rect.width) * ROOM_W);
+    const ty = Math.floor(((e.clientY - rect.top) / rect.height) * ROOM_H);
+    if (tx < 0 || ty < 0 || tx >= ROOM_W || ty >= ROOM_H) return;
+    goTo(tx, ty);
+  }, [goTo, transition]);
+
   function advanceDialog() {
     setDialog(d => {
       if (!d) return d;
@@ -453,7 +541,9 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
 
       <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden p-2 sm:p-4 relative">
         <div
-          className={`relative shadow-2xl rounded-lg overflow-hidden transition-opacity duration-200 ${
+          ref={fieldRef}
+          onClick={onFieldClick}
+          className={`relative shadow-2xl rounded-lg overflow-hidden cursor-pointer transition-opacity duration-200 ${
             transition ? 'opacity-0' : 'opacity-100'
           }`}
           style={{
@@ -477,6 +567,9 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
             avatar={avatar}
             build={build}
           />
+          {destination && (
+            <DestinationMarker x={destination.x} y={destination.y} />
+          )}
           <div
             key={roomId}
             className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-card/85 backdrop-blur-sm border text-xs font-medium pointer-events-none whitespace-nowrap"
@@ -1058,6 +1151,31 @@ function NpcSprite({ npc }: { npc: NpcDef }) {
         </div>
       )}
       <AvatarCanvas config={npc.avatar} size="100%" facing={npc.facing} />
+    </div>
+  );
+}
+
+// Pulsing ring shown on the tile the player tapped to walk to.
+function DestinationMarker({ x, y }: { x: number; y: number }) {
+  return (
+    <div
+      className="absolute pointer-events-none flex items-center justify-center"
+      style={{
+        left: `${x * TILE_PCT_W}%`,
+        top: `${y * TILE_PCT_H}%`,
+        width: `${TILE_PCT_W}%`,
+        height: `${TILE_PCT_H}%`,
+        zIndex: 90,
+      }}
+    >
+      <span
+        className="block rounded-full border-2 border-primary animate-ping"
+        style={{ width: '45%', height: '45%' }}
+      />
+      <span
+        className="absolute block rounded-full bg-primary/70"
+        style={{ width: '14%', height: '14%' }}
+      />
     </div>
   );
 }
