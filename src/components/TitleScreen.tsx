@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AvatarCanvas } from './AvatarCanvas';
-import { ArrowRight, Plus, Trophy } from 'lucide-react';
+import { InfoOverlay } from './InfoOverlay';
+import { ArrowRight, Plus, Trophy, Info } from 'lucide-react';
 import { journeyProgress } from '@/lib/journey';
 import type { Session } from '@/lib/sessions';
 
@@ -33,9 +35,19 @@ function fmtPlaytime(ms: number): string {
 export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
   const returning = sessions.length > 0;
   const ordered = [...sessions].sort((a, b) => b.lastPlayedAt - a.lastPlayedAt);
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
     <div className="h-[100dvh] w-full flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden">
+      {/* Info / guide — top of the page */}
+      <button
+        onClick={() => setShowInfo(true)}
+        className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full border-2 border-border bg-card/80 px-3 h-9 text-sm font-medium text-muted-foreground hover:text-foreground"
+        aria-label="So funktioniert Vibe Check"
+      >
+        <Info className="w-4 h-4" /> Info
+      </button>
+      {showInfo && <InfoOverlay onClose={() => setShowInfo(false)} />}
       {/* Floating decorative elements */}
       <div className="absolute top-12 left-8 text-5xl opacity-30 animate-pulse" style={{ animationDuration: '3s' }}>💻</div>
       <div className="absolute top-24 right-12 text-4xl opacity-25" style={{ transform: 'rotate(15deg)' }}>🤖</div>
