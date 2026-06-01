@@ -58,7 +58,8 @@ type DialogLesson = {
 const TILE_PCT_W = 100 / ROOM_W;
 const TILE_PCT_H = 100 / ROOM_H;
 const SPRITE_TILES = 1.4;
-const MOVE_MS = 180;
+// Per-tile glide duration. Higher = calmer/slower walking (was 180, felt rushed).
+const MOVE_MS = 240;
 
 const DIR_DELTAS: Record<Dir, { dx: number; dy: number }> = {
   up: { dx: 0, dy: -1 },
@@ -76,20 +77,31 @@ const KEY_TO_DIR: Record<string, Dir> = {
 
 export function GameScreen({ avatar, name, gender, onExit }: Props) {
   const build = buildFromGender(gender);
-  const [roomId, setRoomId] = useState<RoomId>('eingang');
-  const [tile, setTile] = useState<Tile>({ x: 6, y: 7 });
-  const [facing, setFacing] = useState<Dir>('up');
+  // Restore previously earned badges/rewards + last position so returning
+  // players resume exactly where they were.
+  const [savedProgress] = useState(loadProgress);
+  const resumeRoom: RoomId =
+    savedProgress.room && savedProgress.room in ROOMS
+      ? (savedProgress.room as RoomId)
+      : 'eingang';
+
+  const [roomId, setRoomId] = useState<RoomId>(resumeRoom);
+  const [tile, setTile] = useState<Tile>(() =>
+    savedProgress.room === resumeRoom && savedProgress.tile
+      ? savedProgress.tile
+      : { x: 6, y: 7 },
+  );
+  const [facing, setFacing] = useState<Dir>(
+    (savedProgress.facing as Dir) ?? 'up',
+  );
   const [moving, setMoving] = useState(false);
   const [walkFrame, setWalkFrame] = useState(0);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [sandbox, setSandbox] = useState<string | null>(null);
-  // Restore previously earned badges/rewards so progress survives reloads.
-  const [savedProgress] = useState(loadProgress);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     () => new Set(savedProgress.completedLessons),
   );
   const [misc, setMisc] = useState<Set<string>>(() => new Set(savedProgress.misc));
-  const [showHint, setShowHint] = useState(true);
   const [transition, setTransition] = useState(false);
   // Show the onboarding overlay once for first-time players.
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
@@ -99,13 +111,17 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
     setShowTutorial(false);
   }, []);
 
-  // Persist progress whenever a lesson is completed or a reward is collected.
+  // Persist progress + current position whenever any of it changes, so a
+  // reload or revisit drops the player back exactly here.
   useEffect(() => {
     saveProgress({
       completedLessons: Array.from(completedLessons),
       misc: Array.from(misc),
+      room: roomId,
+      tile,
+      facing,
     });
-  }, [completedLessons, misc]);
+  }, [completedLessons, misc, roomId, tile, facing]);
 
   const room = ROOMS[roomId];
 
@@ -243,7 +259,6 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
       tileRef.current = { x: exit.spawn.x, y: exit.spawn.y };
       setFacing(exit.spawn.facing);
       facingRef.current = exit.spawn.facing;
-      setShowHint(false);
       setTimeout(() => {
         setTransition(false);
         setMoving(false);
@@ -303,7 +318,6 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
       // Sandbox trigger
       if (obj.sandboxId && SCENARIOS[obj.sandboxId]) {
         setSandbox(obj.sandboxId);
-        setShowHint(false);
         return;
       }
 
@@ -337,7 +351,6 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
         });
       }
     }
-    setShowHint(false);
   }, []);
 
   function advanceDialog() {
@@ -388,7 +401,7 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen w-full flex flex-col items-stretch bg-background no-select">
+    <div className="h-[100dvh] w-full flex flex-col items-stretch bg-background no-select overflow-hidden">
       <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0">
@@ -438,7 +451,7 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-center overflow-hidden p-2 sm:p-4 relative">
+      <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden p-2 sm:p-4 relative">
         <div
           className={`relative shadow-2xl rounded-lg overflow-hidden transition-opacity duration-200 ${
             transition ? 'opacity-0' : 'opacity-100'
@@ -446,6 +459,9 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
           style={{
             width: '100%',
             maxWidth: '600px',
+            // Clamp to available height too, so the field never forces the page
+            // to scroll on mobile; aspect-ratio keeps tiles square.
+            maxHeight: '100%',
             aspectRatio: `${ROOM_W} / ${ROOM_H}`,
             backgroundColor: room.tint,
             containerType: 'inline-size',
@@ -468,14 +484,6 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
           >
             {room.subtitle}
           </div>
-          {showHint && roomId === 'eingang' && !dialog && (
-            <div
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl bg-foreground/85 text-background text-xs text-center max-w-[260px] pointer-events-none"
-              style={{ animation: 'float-in 0.6s ease both' }}
-            >
-              Bewegen: WASD oder Joystick. Sprich mit Roya — drück <kbd className="px-1 bg-background/20 rounded">E</kbd> oder <kbd className="px-1 bg-background/20 rounded">⊙</kbd>.
-            </div>
-          )}
         </div>
       </div>
 
@@ -1071,7 +1079,8 @@ function PlayerSprite({
         height: `${h}%`,
         zIndex: 100 + tile.y,
         filter: 'drop-shadow(0 2px 2px rgba(40,24,16,0.3))',
-        transition: `left ${MOVE_MS}ms cubic-bezier(.4,0,.2,1), top ${MOVE_MS}ms cubic-bezier(.4,0,.2,1)`,
+        // Smooth, non-bouncy ease-in-out so tile steps glide instead of snapping.
+        transition: `left ${MOVE_MS}ms cubic-bezier(0.45,0.05,0.55,0.95), top ${MOVE_MS}ms cubic-bezier(0.45,0.05,0.55,0.95)`,
       }}
     >
       <AvatarCanvas

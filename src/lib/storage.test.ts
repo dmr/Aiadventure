@@ -6,6 +6,7 @@ import {
   loadProgress,
   saveProgress,
   clearProgress,
+  hasSavedProgress,
   hasSeenTutorial,
   markTutorialSeen,
   type Prefs,
@@ -76,7 +77,26 @@ describe('progress', () => {
 
   it('coerces malformed/missing fields to empty arrays', () => {
     localStorage.setItem('cafe-campfire-progress-v1', JSON.stringify({ completedLessons: 'nope' }));
-    expect(loadProgress()).toEqual({ completedLessons: [], misc: [] });
+    expect(loadProgress()).toEqual({ completedLessons: [], misc: [], room: undefined, tile: undefined, facing: undefined });
+  });
+
+  it('round-trips the resume position (room/tile/facing)', () => {
+    saveProgress({ completedLessons: [], misc: [], room: 'lounge', tile: { x: 3, y: 5 }, facing: 'left' });
+    const p = loadProgress();
+    expect(p.room).toBe('lounge');
+    expect(p.tile).toEqual({ x: 3, y: 5 });
+    expect(p.facing).toBe('left');
+  });
+
+  it('ignores a malformed tile', () => {
+    localStorage.setItem('cafe-campfire-progress-v1', JSON.stringify({ tile: { x: 'a' } }));
+    expect(loadProgress().tile).toBeUndefined();
+  });
+
+  it('hasSavedProgress reflects whether anything is stored', () => {
+    expect(hasSavedProgress()).toBe(false);
+    saveProgress({ completedLessons: [], misc: [], room: 'eingang' });
+    expect(hasSavedProgress()).toBe(true);
   });
 });
 

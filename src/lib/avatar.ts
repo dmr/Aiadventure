@@ -26,7 +26,9 @@ export const CLOTH_COLORS = [
 ];
 
 export const HAIR_STYLES = ['Kurz', 'Lang', 'Dutt', 'Glatze', 'Cap', 'Iro'];
-export const ACCESSORIES = ['Keine', 'Brille', 'Hut', 'Kopfhörer'];
+export const ACCESSORIES = [
+  'Keine', 'Brille', 'Hut', 'Kopfhörer', 'Mütze', 'Zylinder', 'Goldkette', 'Selfie-Stick',
+];
 
 export const DEFAULT_AVATAR: AvatarConfig = {
   skin: 1,
@@ -88,7 +90,9 @@ export function drawAvatar(
   const shirtShade = shade(shirt, -0.18);
   const pants = CLOTH_COLORS[cfg.pants] ?? CLOTH_COLORS[6];
 
-  const bob = walking ? (frame % 2 === 0 ? 0 : -1) : 0;
+  // No vertical body-bob — the walk reads through the alternating legs alone,
+  // which keeps movement calm rather than bouncy.
+  const bob = 0;
 
   // Shadow
   ctx.fillStyle = 'rgba(20, 12, 8, 0.28)';
@@ -262,6 +266,46 @@ function drawAccessory(ctx: CanvasRenderingContext2D, type: number, bob: number)
       rect(ctx, 9, 8 + bob, 2, 2);
       rect(ctx, 21, 8 + bob, 2, 2);
       break;
+    case 4: // Beanie / Mütze (snug knit cap)
+      ctx.fillStyle = '#3a5fbf';
+      rect(ctx, 9, 5 + bob, 14, 3);   // band
+      rect(ctx, 10, 3 + bob, 12, 2);  // dome
+      rect(ctx, 14, 2 + bob, 4, 1);   // bobble base
+      ctx.fillStyle = '#e6e0d0';
+      rect(ctx, 15, 1 + bob, 2, 1);   // pom-pom
+      ctx.fillStyle = '#2c4a99';
+      rect(ctx, 9, 7 + bob, 14, 1);   // folded rim shadow
+      break;
+    case 5: // Zylinder (tall top hat)
+      ctx.fillStyle = '#1d1d22';
+      rect(ctx, 7, 5 + bob, 18, 1);   // wide brim
+      rect(ctx, 10, 0 + bob, 12, 5);  // tall crown
+      ctx.fillStyle = '#a82e3a';
+      rect(ctx, 10, 4 + bob, 12, 1);  // band
+      break;
+    case 6: // Goldkette (gold chain on the chest)
+      ctx.fillStyle = '#e6c200';
+      rect(ctx, 13, 18 + bob, 1, 1);
+      rect(ctx, 18, 18 + bob, 1, 1);
+      rect(ctx, 14, 19 + bob, 1, 1);
+      rect(ctx, 17, 19 + bob, 1, 1);
+      rect(ctx, 15, 20 + bob, 2, 1); // pendant
+      ctx.fillStyle = '#fff3a0';
+      rect(ctx, 15, 20 + bob, 1, 1); // shine
+      break;
+    case 7: { // Selfie-Stick (held out to the right)
+      ctx.fillStyle = '#5a5a5a';
+      // diagonal pole from the right hand upward-out
+      rect(ctx, 24, 22 + bob, 1, 2);
+      rect(ctx, 25, 19 + bob, 1, 3);
+      rect(ctx, 26, 16 + bob, 1, 3);
+      rect(ctx, 27, 13 + bob, 1, 3);
+      ctx.fillStyle = '#1a1a1a';
+      rect(ctx, 26, 10 + bob, 4, 4); // phone body
+      ctx.fillStyle = '#6cc6ff';
+      rect(ctx, 27, 11 + bob, 2, 2); // screen
+      break;
+    }
   }
 }
 

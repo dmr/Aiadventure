@@ -52,6 +52,12 @@ export type Progress = {
   completedLessons: string[];
   /** misc rewards / easter-egg tokens (e.g. "cat-friend", "sim-survived") */
   misc: string[];
+  /** last room id, so returning players resume where they were */
+  room?: string;
+  /** last tile position in that room */
+  tile?: { x: number; y: number };
+  /** last facing direction */
+  facing?: string;
 };
 
 export function loadProgress(): Progress {
@@ -62,10 +68,22 @@ export function loadProgress(): Progress {
     return {
       completedLessons: Array.isArray(parsed?.completedLessons) ? parsed.completedLessons : [],
       misc: Array.isArray(parsed?.misc) ? parsed.misc : [],
+      room: typeof parsed?.room === 'string' ? parsed.room : undefined,
+      tile:
+        parsed?.tile && typeof parsed.tile.x === 'number' && typeof parsed.tile.y === 'number'
+          ? { x: parsed.tile.x, y: parsed.tile.y }
+          : undefined,
+      facing: typeof parsed?.facing === 'string' ? parsed.facing : undefined,
     };
   } catch {
     return { completedLessons: [], misc: [] };
   }
+}
+
+/** True if the player has any saved state (used to greet returning players). */
+export function hasSavedProgress(): boolean {
+  const p = loadProgress();
+  return p.completedLessons.length > 0 || p.misc.length > 0 || !!p.room;
 }
 
 export function saveProgress(p: Progress): void {
