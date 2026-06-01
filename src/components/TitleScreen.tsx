@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AvatarCanvas } from './AvatarCanvas';
 import { InfoOverlay } from './InfoOverlay';
-import { ArrowRight, Plus, Trophy, Info } from 'lucide-react';
+import { ArrowRight, Plus, Trophy, Info, Coffee, ShoppingCart } from 'lucide-react';
 import { journeyProgress } from '@/lib/journey';
 import type { Session } from '@/lib/sessions';
 
@@ -79,10 +79,19 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
                   <li key={s.id}>
                     <button
                       onClick={() => onContinue(s.id)}
-                      className="w-full flex items-center gap-3 rounded-xl border-2 border-border bg-card hover:border-primary/50 px-3 py-2.5 transition-colors"
+                      className="w-full flex items-center gap-2.5 rounded-xl border-2 border-border bg-card hover:border-primary/50 px-2.5 py-2.5 transition-colors"
                     >
+                      {/* Story type first — clearly distinguishes the two tracks */}
+                      <div
+                        className={`shrink-0 w-14 flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 ${
+                          isEinkauf ? 'bg-sky-500/15 text-sky-700' : 'bg-amber-500/15 text-amber-800'
+                        }`}
+                      >
+                        {isEinkauf ? <ShoppingCart className="w-4 h-4" /> : <Coffee className="w-4 h-4" />}
+                        <span className="text-[9px] font-semibold leading-none">{isEinkauf ? 'Einkauf' : 'Café'}</span>
+                      </div>
                       <div className="shrink-0 rounded-lg bg-secondary/60 p-1">
-                        <AvatarCanvas config={s.avatar} size={40} facing="down" />
+                        <AvatarCanvas config={s.avatar} size={36} facing="down" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold leading-tight truncate flex items-center gap-1">
@@ -90,7 +99,7 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
                           {!isEinkauf && p.certificateEarned && <Trophy className="w-3.5 h-3.5 text-primary shrink-0" />}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {isEinkauf ? `🛒 Einkauf · ${tasks}/3` : `☕ Kapitel ${p.stagesDone}/${p.totalStages}`}
+                          {isEinkauf ? `${tasks}/3 Aufgaben` : `Kapitel ${p.stagesDone}/${p.totalStages}`}
                           {' · '}{fmtPlaytime(s.playtimeMs)} · {relTime(s.lastPlayedAt)}
                         </p>
                       </div>

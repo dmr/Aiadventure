@@ -123,3 +123,22 @@ export function markTutorialSeen(): void {
     // Ignore
   }
 }
+
+// One-time hint that the avatar can be customised any time from the top button.
+const AVATAR_HINT_KEY = 'cafe-campfire-avatar-hint-v1';
+
+export function hasSeenAvatarHint(): boolean {
+  try {
+    return localStorage.getItem(AVATAR_HINT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function markAvatarHintSeen(): void {
+  try {
+    localStorage.setItem(AVATAR_HINT_KEY, '1');
+  } catch {
+    // Ignore
+  }
+}

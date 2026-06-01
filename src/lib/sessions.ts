@@ -2,10 +2,11 @@
 // its own avatar/identity, progress, and rich metadata for later analytics.
 // Supersedes the old single prefs+progress model (migrated on first load).
 
-import type { AvatarConfig } from './avatar';
+import { randomAvatar, type AvatarConfig } from './avatar';
 import type { Gender } from './storage';
 import type { Role, Entry, Track } from './journey';
 import { loadPrefs, loadProgress } from './storage';
+import { randomName } from './names';
 
 const SESSIONS_KEY = 'cafe-campfire-sessions-v1';
 
@@ -131,21 +132,22 @@ export function setActive(id: string | null): void {
   write({ ...state, activeId: id });
 }
 
-/** Create and persist a new session, make it active, return it. */
+/** Create and persist a new session, make it active, return it. Name/avatar
+ * default to a random pick when omitted (so a new session needs no setup step). */
 export function createSession(seed: {
-  name: string;
-  avatar: AvatarConfig;
+  name?: string;
+  avatar?: AvatarConfig;
   gender?: Gender;
   track?: Track;
   role?: Role;
   entry?: Entry;
   avatarChanges?: number;
-}): Session {
+} = {}): Session {
   const now = Date.now();
   const session: Session = {
     id: uid(),
-    name: seed.name,
-    avatar: seed.avatar,
+    name: seed.name ?? randomName(),
+    avatar: seed.avatar ?? randomAvatar(now & 0xffff),
     gender: seed.gender,
     track: seed.track,
     role: seed.role,
@@ -194,6 +196,21 @@ export function recordVisit(id: string): void {
 export function addPlaytime(id: string, ms: number): void {
   if (ms <= 0) return;
   mutate(id, (s) => ({ ...s, playtimeMs: s.playtimeMs + ms, lastPlayedAt: Date.now() }));
+}
+
+/** Update the player's look/name (e.g. from the in-game avatar editor). */
+export function setIdentity(
+  id: string,
+  patch: { avatar: AvatarConfig; name: string; gender?: Gender },
+): void {
+  mutate(id, (s) => ({
+    ...s,
+    avatar: patch.avatar,
+    name: patch.name,
+    gender: patch.gender,
+    avatarChanges: s.avatarChanges + 1,
+    lastPlayedAt: Date.now(),
+  }));
 }
 
 /** Append a reward/completion token to misc (deduped). */

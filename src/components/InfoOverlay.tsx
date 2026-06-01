@@ -37,14 +37,14 @@ export function InfoOverlay({ onClose }: Props) {
             body="Auf der Startseite legst du los oder wählst einen bestehenden Speicherstand. Jede Session merkt sich Avatar, Fortschritt und Spielzeit — du kannst mehrere parallel führen."
           />
           <Item
-            title="2 · Rolle & Einstieg"
-            thumb={<div className="text-3xl">🧑‍💻 / 🧑‍💼</div>}
-            body="Wähle deine Rolle (Entwickler:in, Lead oder Neugierig) und den Einstieg (voller Rundgang oder direkt zum Simulator). Deine Rolle hebt passende Szenarien hervor."
+            title="2 · Story wählen"
+            thumb={<div className="text-3xl">☕ / 🛒</div>}
+            body="Zwei Geschichten: das Café-Lernspiel rund um Claude Code — oder ‚KI im Einkauf‘ mit klaren Aufgaben und starkem Datenschutz-Fokus. Danach geht's sofort los."
           />
           <Item
-            title="3 · Avatar"
+            title="3 · Avatar (jederzeit)"
             thumb={<div className="rounded-lg bg-secondary/60 p-1"><AvatarCanvas config={DEFAULT_AVATAR} size={56} facing="down" /></div>}
-            body="Bau deine Figur: Statur & Größe, Hautton, Frisur, Outfit und Extras (Brille, Hut, Goldkette, Selfie-Stick …). Die Anrede schlägt eine passende Statur vor."
+            body="Du startest mit einer zufälligen Figur. Oben links auf den Avatar tippen → jederzeit anpassen: Statur & Größe, Ausdruck, Hautton, Frisur, Outfit, Extras und Name."
           />
           <Item
             title="4 · Räume & Steuerung"

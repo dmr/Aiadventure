@@ -7,7 +7,7 @@ describe('<InfoOverlay>', () => {
   it('explains the main screens', () => {
     render(<InfoOverlay onClose={() => {}} />);
     expect(screen.getByText(/Start & Speicherstände/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rolle & Einstieg/i)).toBeInTheDocument();
+    expect(screen.getByText(/Story wählen/i)).toBeInTheDocument();
     expect(screen.getByText(/Räume & Steuerung/i)).toBeInTheDocument();
     expect(screen.getByText(/Trainings-Simulatoren/i)).toBeInTheDocument();
   });

@@ -11,7 +11,7 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
-import { hasSeenTutorial, markTutorialSeen } from '@/lib/storage';
+import { hasSeenTutorial, markTutorialSeen, hasSeenAvatarHint, markAvatarHintSeen } from '@/lib/storage';
 import { getSession, patchProgress, recordVisit, addPlaytime } from '@/lib/sessions';
 import { Tutorial } from './Tutorial';
 import { JourneyMap } from './JourneyMap';
@@ -19,13 +19,14 @@ import { Certificate } from './Certificate';
 import { journeyProgress, STAGES } from '@/lib/journey';
 import type { AvatarConfig } from '@/lib/avatar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle, Map, Trophy } from 'lucide-react';
+import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle, Map, Trophy, Pencil } from 'lucide-react';
 
 type Props = {
   sessionId: string;
   avatar: AvatarConfig;
   name: string;
   onExit: () => void;
+  onEditAvatar: () => void;
 };
 
 type Tile = { x: number; y: number };
@@ -87,7 +88,7 @@ function dirToward(from: Tile, to: Tile): Dir | null {
   return null;
 }
 
-export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
+export function GameScreen({ sessionId, avatar, name, onExit, onEditAvatar }: Props) {
   // Restore this session's progress + last position so the player resumes
   // exactly where they were.
   const [savedProgress] = useState(() => {
@@ -128,6 +129,17 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
   const [showMap, setShowMap] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  // One-time blink of the avatar button so players notice they can customise it.
+  const [blinkAvatar, setBlinkAvatar] = useState(false);
+  const avatarHintFired = useRef(false);
+  useEffect(() => {
+    if (showTutorial || avatarHintFired.current || hasSeenAvatarHint()) return;
+    avatarHintFired.current = true;
+    markAvatarHintSeen();
+    setBlinkAvatar(true);
+    const t = window.setTimeout(() => setBlinkAvatar(false), 5200);
+    return () => window.clearTimeout(t);
+  }, [showTutorial]);
 
   const dismissTutorial = useCallback(() => {
     markTutorialSeen();
@@ -534,18 +546,31 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="h-[100dvh] w-full flex flex-col items-stretch bg-background no-select overflow-hidden">
-      <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0">
+      <div className="relative px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
+        {/* Tap your avatar/name any time to customise it. Blinks once on first entry. */}
+        <button
+          onClick={onEditAvatar}
+          className={`flex items-center gap-2 min-w-0 rounded-xl pr-2 -ml-1 pl-1 py-0.5 transition-colors hover:bg-secondary/60 ${blinkAvatar ? 'animate-pulse ring-2 ring-primary' : ''}`}
+          aria-label="Avatar anpassen"
+        >
+          <div className="shrink-0 relative">
             <AvatarCanvas config={avatar} size={36} facing="down" />
+            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
+              <Pencil className="w-2.5 h-2.5" />
+            </span>
           </div>
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground leading-tight">{name}</p>
+          <div className="min-w-0 text-left">
+            <p className="text-xs text-muted-foreground leading-tight truncate">{name}</p>
             <p className="display-font font-semibold text-base leading-tight truncate flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 inline" /> {room.name}
+              <MapPin className="w-3.5 h-3.5 inline shrink-0" /> {room.name}
             </p>
           </div>
-        </div>
+        </button>
+        {blinkAvatar && (
+          <div className="absolute left-2 top-full mt-1 z-30 rounded-lg bg-foreground text-background text-xs px-2.5 py-1 shadow-lg float-in">
+            Tipp: hier deinen Avatar anpassen ✏️
+          </div>
+        )}
         <div className="flex items-center shrink-0">
           <Button
             variant="ghost"

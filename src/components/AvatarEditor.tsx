@@ -17,7 +17,7 @@ import {
 } from '@/lib/avatar';
 import type { Gender } from '@/lib/storage';
 import { randomName } from '@/lib/names';
-import { Shuffle, Check, Dices } from 'lucide-react';
+import { Shuffle, Check, Dices, X } from 'lucide-react';
 
 type Props = {
   config: AvatarConfig;
@@ -27,6 +27,12 @@ type Props = {
   onName: (n: string) => void;
   onGender: (g: Gender | undefined) => void;
   onDone: () => void;
+  /** Heading shown at the top. */
+  title?: string;
+  /** Label of the confirm button. */
+  doneLabel?: string;
+  /** If set, shows an X to cancel (used when opened as an in-game overlay). */
+  onClose?: () => void;
 };
 
 type Tab = 'body' | 'skin' | 'hair' | 'outfit' | 'accessory';
@@ -45,7 +51,10 @@ const GENDERS: { id: Gender; label: string }[] = [
   { id: 'd', label: 'divers' },
 ];
 
-export function AvatarEditor({ config, name, gender, onChange, onName, onGender, onDone }: Props) {
+export function AvatarEditor({
+  config, name, gender, onChange, onName, onGender, onDone,
+  title = 'Mach dich hübsch', doneLabel = "Los geht's", onClose,
+}: Props) {
   const [tab, setTab] = useState<Tab>('body');
 
   const set = (patch: Partial<AvatarConfig>) => onChange({ ...config, ...patch });
@@ -53,10 +62,18 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
   return (
     // Full dynamic-viewport height + overflow-hidden → the page never scrolls on
     // mobile; only the palette area below flexes/scrolls if a device is tiny.
-    <div className="h-[100dvh] w-full flex flex-col items-stretch px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] mx-auto max-w-md overflow-hidden no-select float-in">
+    <div className="h-[100dvh] w-full flex flex-col items-stretch px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] mx-auto max-w-md overflow-hidden no-select float-in relative">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 text-muted-foreground hover:text-foreground"
+          aria-label="Schließen"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
       <div className="text-center shrink-0">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Schritt 1 von 2</p>
-        <h1 className="display-font text-2xl font-semibold leading-tight">Mach dich hübsch</h1>
+        <h1 className="display-font text-2xl font-semibold leading-tight">{title}</h1>
       </div>
 
       {/* Preview + name + Anrede in one compact row */}
@@ -191,7 +208,7 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
           disabled={!name.trim()}
         >
           <Check className="w-4 h-4 mr-2" />
-          Los geht's
+          {doneLabel}
         </Button>
       </div>
     </div>

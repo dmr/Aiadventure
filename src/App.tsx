@@ -1,24 +1,24 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { TitleScreen } from '@/components/TitleScreen';
 import { StorySelect } from '@/components/StorySelect';
-import { RoleSelect } from '@/components/RoleSelect';
 import { AvatarEditor } from '@/components/AvatarEditor';
 import { GameScreen } from '@/components/GameScreen';
 import { ProcurementHub } from '@/components/ProcurementHub';
 import { PwaReloadPrompt } from '@/components/PwaReloadPrompt';
-import { DEFAULT_AVATAR, type AvatarConfig } from '@/lib/avatar';
+import { randomAvatar, type AvatarConfig } from '@/lib/avatar';
 import type { Gender } from '@/lib/storage';
-import type { Role, Entry, Track } from '@/lib/journey';
+import type { Track } from '@/lib/journey';
 import {
   loadSessions,
   createSession,
   setActive,
   getSession,
+  setIdentity,
   type Session,
 } from '@/lib/sessions';
 import { randomName } from '@/lib/names';
 
-type Screen = 'title' | 'story' | 'role' | 'editor' | 'game';
+type Screen = 'title' | 'story' | 'game';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('title');
@@ -33,55 +33,24 @@ function App() {
     setSessionsState({ sessions: s.sessions, activeId: s.activeId });
   };
 
-  // Draft identity edited in the AvatarEditor before a session is created.
-  const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
+  // Active player's identity (mirrors the active session; editable any time).
+  const [avatar, setAvatar] = useState<AvatarConfig>(() => randomAvatar(Date.now() & 0xffff));
   const [name, setName] = useState<string>(() => randomName());
   const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [track, setTrack] = useState<Track>('cafe');
-  const [role, setRole] = useState<Role | undefined>(undefined);
-  const [entry, setEntry] = useState<Entry>('tour');
-  const avatarChanges = useRef(0);
+  const [editingAvatar, setEditingAvatar] = useState(false);
 
-  // Begin creating a brand-new session: fresh draft → story select.
-  const startNewSession = () => {
-    setAvatar(DEFAULT_AVATAR);
-    setName(randomName());
-    setGender(undefined);
-    setTrack('cafe');
-    setRole(undefined);
-    setEntry('tour');
-    avatarChanges.current = 0;
-    setScreen('story');
-  };
+  // New session → pick the story, then jump straight in with a random avatar
+  // (no forced role/avatar step; the avatar can be tweaked any time from the top).
+  const startNewSession = () => setScreen('story');
 
-  // Choose the story: the café track adds a role step; Einkauf skips to the editor.
   const chooseStory = (t: Track) => {
-    setTrack(t);
-    setScreen(t === 'cafe' ? 'role' : 'editor');
-  };
-
-  const finishRole = (r: Role, e: Entry) => {
-    setRole(r);
-    setEntry(e);
-    setScreen('editor');
-  };
-
-  // Finish the editor → persist the new session and play it.
-  const finishEditor = () => {
-    const session = createSession({
-      name: name.trim() || 'Gast',
-      avatar,
-      gender,
-      track,
-      role: track === 'cafe' ? role : undefined,
-      entry: track === 'cafe' ? entry : undefined,
-      avatarChanges: avatarChanges.current,
-    });
+    const session = createSession({ track: t }); // random name/avatar by default
     refreshSessions();
-    setActiveSessionAndPlay(session.id);
+    playSession(session.id);
   };
 
-  const setActiveSessionAndPlay = (id: string) => {
+  const playSession = (id: string) => {
     setActive(id);
     const s = getSession(id);
     if (s) {
@@ -99,6 +68,20 @@ function App() {
     setScreen('title');
   };
 
+  // In-game avatar editor (overlay): save → persist to the session; cancel → revert.
+  const saveAvatar = () => {
+    if (activeId) {
+      setIdentity(activeId, { avatar, name: name.trim() || 'Gast', gender });
+      refreshSessions();
+    }
+    setEditingAvatar(false);
+  };
+  const cancelAvatar = () => {
+    const s = getSession(activeId);
+    if (s) { setAvatar(s.avatar); setName(s.name); setGender(s.gender); }
+    setEditingAvatar(false);
+  };
+
   const playingId = activeId ?? '';
 
   return (
@@ -106,35 +89,18 @@ function App() {
       {screen === 'title' && (
         <TitleScreen
           sessions={sessions}
-          onContinue={(id) => setActiveSessionAndPlay(id)}
+          onContinue={(id) => playSession(id)}
           onNewSession={startNewSession}
         />
       )}
       {screen === 'story' && <StorySelect onChoose={chooseStory} />}
-      {screen === 'role' && <RoleSelect onDone={finishRole} />}
-      {screen === 'editor' && (
-        <AvatarEditor
-          config={avatar}
-          name={name}
-          gender={gender}
-          onChange={(cfg) => {
-            avatarChanges.current += 1;
-            setAvatar(cfg);
-          }}
-          onName={setName}
-          onGender={(g) => {
-            avatarChanges.current += 1;
-            setGender(g);
-          }}
-          onDone={finishEditor}
-        />
-      )}
       {screen === 'game' && playingId && track === 'einkauf' && (
         <ProcurementHub
           sessionId={playingId}
           avatar={avatar}
           name={name || 'Gast'}
           onExit={exitToTitle}
+          onEditAvatar={() => setEditingAvatar(true)}
         />
       )}
       {screen === 'game' && playingId && track !== 'einkauf' && (
@@ -143,8 +109,27 @@ function App() {
           avatar={avatar}
           name={name || 'Gast'}
           onExit={exitToTitle}
+          onEditAvatar={() => setEditingAvatar(true)}
         />
       )}
+
+      {editingAvatar && (
+        <div className="fixed inset-0 z-[120] bg-background">
+          <AvatarEditor
+            config={avatar}
+            name={name}
+            gender={gender}
+            onChange={setAvatar}
+            onName={setName}
+            onGender={setGender}
+            onDone={saveAvatar}
+            onClose={cancelAvatar}
+            title="Avatar anpassen"
+            doneLabel="Speichern"
+          />
+        </div>
+      )}
+
       <PwaReloadPrompt />
     </div>
   );

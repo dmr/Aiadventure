@@ -4,23 +4,32 @@ import { AvatarCanvas } from './AvatarCanvas';
 import { SandboxRunner } from './SandboxRunner';
 import { PROCUREMENT_TASKS } from '@/lib/procurement';
 import { getSession, recordVisit, addPlaytime, addReward } from '@/lib/sessions';
+import { hasSeenAvatarHint, markAvatarHintSeen } from '@/lib/storage';
 import type { AvatarConfig } from '@/lib/avatar';
-import { X, ShieldCheck, Check, Play, RotateCw, Lock } from 'lucide-react';
+import { X, ShieldCheck, Check, Play, RotateCw, Lock, Pencil } from 'lucide-react';
 
 type Props = {
   sessionId: string;
   name: string;
   avatar: AvatarConfig;
   onExit: () => void;
+  onEditAvatar: () => void;
 };
 
 const tok = (id: string) => `task:${id}`;
 
 // "KI im Einkauf" hub: clear procurement tasks with a strong data-privacy focus.
 // Each task runs in the shared Trainings-Simulator engine.
-export function ProcurementHub({ sessionId, name, avatar, onExit }: Props) {
+export function ProcurementHub({ sessionId, name, avatar, onExit, onEditAvatar }: Props) {
   const [done, setDone] = useState<Set<string>>(() => new Set(getSession(sessionId)?.misc ?? []));
   const [active, setActive] = useState<string | null>(null);
+  const [blinkAvatar, setBlinkAvatar] = useState(() => !hasSeenAvatarHint());
+  useEffect(() => {
+    if (!blinkAvatar) return;
+    markAvatarHintSeen();
+    const t = window.setTimeout(() => setBlinkAvatar(false), 5200);
+    return () => window.clearTimeout(t);
+  }, [blinkAvatar]);
 
   // Session metadata: visit + playtime (same as the game screen).
   useEffect(() => {
@@ -38,14 +47,28 @@ export function ProcurementHub({ sessionId, name, avatar, onExit }: Props) {
 
   return (
     <div className="h-[100dvh] w-full flex flex-col items-stretch bg-background no-select overflow-hidden">
-      <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0"><AvatarCanvas config={avatar} size={36} facing="down" /></div>
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground leading-tight">{name}</p>
+      <div className="relative px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
+        <button
+          onClick={onEditAvatar}
+          className={`flex items-center gap-2 min-w-0 rounded-xl pr-2 -ml-1 pl-1 py-0.5 transition-colors hover:bg-secondary/60 ${blinkAvatar ? 'animate-pulse ring-2 ring-primary' : ''}`}
+          aria-label="Avatar anpassen"
+        >
+          <div className="shrink-0 relative">
+            <AvatarCanvas config={avatar} size={36} facing="down" />
+            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
+              <Pencil className="w-2.5 h-2.5" />
+            </span>
+          </div>
+          <div className="min-w-0 text-left">
+            <p className="text-xs text-muted-foreground leading-tight truncate">{name}</p>
             <p className="display-font font-semibold text-base leading-tight truncate">KI im Einkauf</p>
           </div>
-        </div>
+        </button>
+        {blinkAvatar && (
+          <div className="absolute left-2 top-full mt-1 z-30 rounded-lg bg-foreground text-background text-xs px-2.5 py-1 shadow-lg float-in">
+            Tipp: hier deinen Avatar anpassen ✏️
+          </div>
+        )}
         <Button variant="ghost" size="icon" onClick={onExit} aria-label="Verlassen"><X className="w-5 h-5" /></Button>
       </div>
 
