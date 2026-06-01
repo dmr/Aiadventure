@@ -69,9 +69,10 @@ export function Tutorial({ onClose }: Props) {
             title="Ziel"
             body={
               <>
-                Arbeite dich durch alle 5 Stufen bis ins <span className="font-medium">Cockpit</span> und
-                probier dort die <span className="font-medium">Trainings-Simulatoren</span>. Dein
-                Fortschritt wird automatisch gespeichert.
+                Meistere alle <span className="font-medium">5 Stufen</span> und bestehe einen
+                <span className="font-medium"> Trainings-Simulator</span> → hol dir das
+                <span className="font-medium"> Vibe-Check-Zertifikat</span>. Dein Fortschritt
+                (oben über <span className="font-medium">🏆</span> einsehbar) wird gespeichert.
               </>
             }
           />
