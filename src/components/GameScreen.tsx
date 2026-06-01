@@ -11,7 +11,8 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
-import { loadProgress, saveProgress, hasSeenTutorial, markTutorialSeen, type Gender } from '@/lib/storage';
+import { hasSeenTutorial, markTutorialSeen, type Gender } from '@/lib/storage';
+import { getSession, patchProgress, recordVisit, addPlaytime } from '@/lib/sessions';
 import { Tutorial } from './Tutorial';
 import { JourneyMap } from './JourneyMap';
 import { Certificate } from './Certificate';
@@ -22,6 +23,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle, Map, Trophy } from 'lucide-react';
 
 type Props = {
+  sessionId: string;
   avatar: AvatarConfig;
   name: string;
   gender?: Gender;
@@ -87,11 +89,20 @@ function dirToward(from: Tile, to: Tile): Dir | null {
   return null;
 }
 
-export function GameScreen({ avatar, name, gender, onExit }: Props) {
+export function GameScreen({ sessionId, avatar, name, gender, onExit }: Props) {
   const build = buildFromGender(gender);
-  // Restore previously earned badges/rewards + last position so returning
-  // players resume exactly where they were.
-  const [savedProgress] = useState(loadProgress);
+  // Restore this session's progress + last position so the player resumes
+  // exactly where they were.
+  const [savedProgress] = useState(() => {
+    const s = getSession(sessionId);
+    return {
+      completedLessons: s?.completedLessons ?? [],
+      misc: s?.misc ?? [],
+      room: s?.room,
+      tile: s?.tile,
+      facing: s?.facing,
+    };
+  });
   const resumeRoom: RoomId =
     savedProgress.room && savedProgress.room in ROOMS
       ? (savedProgress.room as RoomId)
@@ -129,17 +140,35 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
   const progress = journeyProgress(completedLessons, misc);
   const earnedRef = useRef(progress.certificateEarned);
 
-  // Persist progress + current position whenever any of it changes, so a
-  // reload or revisit drops the player back exactly here.
+  // Persist progress + current position into the active session whenever any of
+  // it changes, so a reload or revisit drops the player back exactly here.
   useEffect(() => {
-    saveProgress({
+    patchProgress(sessionId, {
       completedLessons: Array.from(completedLessons),
       misc: Array.from(misc),
       room: roomId,
       tile,
       facing,
     });
-  }, [completedLessons, misc, roomId, tile, facing]);
+  }, [sessionId, completedLessons, misc, roomId, tile, facing]);
+
+  // Session metadata: count this visit and accumulate active play time.
+  useEffect(() => {
+    recordVisit(sessionId);
+    let last = Date.now();
+    const flush = () => {
+      const now = Date.now();
+      addPlaytime(sessionId, now - last);
+      last = now;
+    };
+    const iv = window.setInterval(flush, 15_000);
+    document.addEventListener('visibilitychange', flush);
+    return () => {
+      window.clearInterval(iv);
+      document.removeEventListener('visibilitychange', flush);
+      flush();
+    };
+  }, [sessionId]);
 
   // Celebrate the moment the certificate is first earned.
   useEffect(() => {
