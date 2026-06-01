@@ -35,7 +35,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="w-full">
       {screen === 'title' && (
         <TitleScreen
           onStart={() => setScreen('editor')}

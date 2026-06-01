@@ -15,7 +15,7 @@ type Props = {
 export function TitleScreen({ onStart, playerName, onContinue, onRestart }: Props) {
   const returning = !!playerName && !!onContinue;
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-10 relative overflow-hidden">
+    <div className="h-[100dvh] w-full flex flex-col items-center justify-center px-6 py-10 relative overflow-hidden">
       {/* Floating decorative elements */}
       <div className="absolute top-12 left-8 text-5xl opacity-30 animate-pulse" style={{ animationDuration: '3s' }}>☕</div>
       <div className="absolute top-24 right-12 text-4xl opacity-25" style={{ transform: 'rotate(15deg)' }}>📖</div>

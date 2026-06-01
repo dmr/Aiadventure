@@ -516,7 +516,7 @@ export function GameScreen({ avatar, name, gender, onExit }: Props) {
       <Dialog open={!!dialog} onOpenChange={(o) => { if (!o && dialog?.kind === 'simple') advanceDialog(); }}>
         <DialogContent
           className="max-w-md p-0 gap-0 border-2 overflow-hidden flex flex-col"
-          style={{ maxHeight: 'calc(100vh - 4rem)' }}
+          style={{ maxHeight: 'calc(100dvh - 4rem)' }}
         >
           {dialog?.kind === 'simple' && <SimpleDialogView dialog={dialog} onAdvance={advanceDialog} />}
           {dialog?.kind === 'lesson' && (
