@@ -11,6 +11,7 @@ import {
   ACCESSORIES,
   BODY_TYPES,
   HEIGHT_TYPES,
+  EXPRESSIONS,
   randomAvatar,
   bodyForGender,
 } from '@/lib/avatar';
@@ -136,6 +137,9 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
             </Section>
             <Section title="Größe" className="mt-4">
               <OptionRow options={HEIGHT_TYPES} value={config.height ?? 1} onSelect={i => set({ height: i })} />
+            </Section>
+            <Section title="Ausdruck" className="mt-4">
+              <OptionRow options={EXPRESSIONS} value={config.expression ?? 0} onSelect={i => set({ expression: i })} />
             </Section>
           </>
         )}

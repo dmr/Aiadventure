@@ -40,6 +40,8 @@ export type Decoration = {
 export type NpcDef = {
   id: string;
   name: string;
+  /** short role / cliché intro, shown e.g. on the certificate cast list */
+  title?: string;
   x: number;
   y: number;
   facing: Dir;
@@ -113,14 +115,14 @@ const eingang: RoomDef = {
   ],
   npcs: [
     {
-      id: 'roya', name: 'Roya', x: 6, y: 5, facing: 'down',
-      avatar: { skin: 2, hairStyle: 0, hairColor: 1, shirt: 2, pants: 9, accessory: 1, body: 0, height: 1 },
+      id: 'roya', name: 'Roya', title: 'Mentorin · Use-Cases', x: 6, y: 5, facing: 'down',
+      avatar: { skin: 2, hairStyle: 0, hairColor: 1, shirt: 2, pants: 9, accessory: 1, body: 0, height: 1 , expression: 1},
       bubble: '👋', lessonId: 'usecases',
       dialog: { lines: ['Roya: "Komm her, ich zeig dir was."'] },
     },
     {
-      id: 'theo', name: 'Theo', x: 3, y: 9, facing: 'right',
-      avatar: { skin: 3, hairStyle: 0, hairColor: 2, shirt: 9, pants: 6, accessory: 1, body: 2, height: 2 },
+      id: 'theo', name: 'Theo', title: 'Der Skeptiker', x: 3, y: 9, facing: 'right',
+      avatar: { skin: 3, hairStyle: 0, hairColor: 2, shirt: 9, pants: 6, accessory: 1, body: 2, height: 2 , expression: 2},
       bubble: '🙄',
       dialog: {
         lines: [
@@ -130,8 +132,8 @@ const eingang: RoomDef = {
       },
     },
     {
-      id: 'mara', name: 'Mara', x: 9, y: 4, facing: 'down',
-      avatar: { skin: 1, hairStyle: 2, hairColor: 4, shirt: 5, pants: 2, accessory: 0, body: 0, height: 0 },
+      id: 'mara', name: 'Mara', title: 'Die Pragmatikerin', x: 9, y: 4, facing: 'down',
+      avatar: { skin: 1, hairStyle: 2, hairColor: 4, shirt: 5, pants: 2, accessory: 0, body: 0, height: 0 , expression: 1},
       bubble: '💡',
       dialog: {
         lines: ['Mara: "Tipp: Lass die KI das Langweilige machen — Boilerplate, Migrationen. Das Knifflige machst du."'],
@@ -173,14 +175,14 @@ const cafebar: RoomDef = {
   ],
   npcs: [
     {
-      id: 'pavel', name: 'Pavel', x: 6, y: 3, facing: 'down',
-      avatar: { skin: 1, hairStyle: 1, hairColor: 6, shirt: 7, pants: 6, accessory: 1, body: 1, height: 1 },
+      id: 'pavel', name: 'Pavel', title: 'Mentor · Context Window', x: 6, y: 3, facing: 'down',
+      avatar: { skin: 1, hairStyle: 1, hairColor: 6, shirt: 7, pants: 6, accessory: 1, body: 1, height: 1 , expression: 0},
       bubble: '📚', lessonId: 'context',
       dialog: { lines: ['Pavel: "Komm her, ich erklär dir was zu Context Windows."'] },
     },
     {
-      id: 'bina', name: 'Bina', x: 4, y: 9, facing: 'down',
-      avatar: { skin: 4, hairStyle: 1, hairColor: 0, shirt: 1, pants: 6, accessory: 1, body: 0, height: 1 },
+      id: 'bina', name: 'Bina', title: 'Die Bibliothekarin', x: 4, y: 9, facing: 'down',
+      avatar: { skin: 4, hairStyle: 1, hairColor: 0, shirt: 1, pants: 6, accessory: 1, body: 0, height: 1 , expression: 0},
       bubble: '🤫',
       dialog: {
         lines: ['Bina flüstert: "Lange Sessions? /clear zwischen unverwandten Themen — dann bleibt der Context scharf."'],
@@ -221,14 +223,14 @@ const lounge: RoomDef = {
   ],
   npcs: [
     {
-      id: 'lia', name: 'Lia', x: 6, y: 4, facing: 'down',
-      avatar: { skin: 2, hairStyle: 1, hairColor: 1, shirt: 7, pants: 6, accessory: 1, body: 0, height: 1 },
+      id: 'lia', name: 'Lia', title: 'Mentorin · Promptcraft', x: 6, y: 4, facing: 'down',
+      avatar: { skin: 2, hairStyle: 1, hairColor: 1, shirt: 7, pants: 6, accessory: 1, body: 0, height: 1 , expression: 1},
       bubble: '✏️', lessonId: 'promptcraft',
       dialog: { lines: ['Lia: "Komm her, lass uns über Promptcraft reden."'] },
     },
     {
-      id: 'olu', name: 'Olu', x: 9, y: 9, facing: 'down',
-      avatar: { skin: 5, hairStyle: 5, hairColor: 0, shirt: 3, pants: 9, accessory: 3, body: 3, height: 2 },
+      id: 'olu', name: 'Olu', title: 'Der Wortklauber', x: 9, y: 9, facing: 'down',
+      avatar: { skin: 5, hairStyle: 5, hairColor: 0, shirt: 3, pants: 9, accessory: 3, body: 3, height: 2 , expression: 3},
       bubble: '🎧',
       dialog: {
         lines: ['Olu: "Vage Prompts → vage Ergebnisse. Sag, was du WIRKLICH willst — mit Constraints."'],
@@ -273,14 +275,14 @@ const garten: RoomDef = {
   ],
   npcs: [
     {
-      id: 'sven', name: 'Sven', x: 6, y: 6, facing: 'down',
-      avatar: { skin: 3, hairStyle: 5, hairColor: 3, shirt: 1, pants: 5, accessory: 2, body: 2, height: 1 },
+      id: 'sven', name: 'Sven', title: 'Mentor · Claude Code', x: 6, y: 6, facing: 'down',
+      avatar: { skin: 3, hairStyle: 5, hairColor: 3, shirt: 1, pants: 5, accessory: 2, body: 2, height: 1 , expression: 3},
       bubble: '🛠️', lessonId: 'cc-intro',
       dialog: { lines: ['Sven: "Komm her — Übersicht zuerst, dann die vier Stationen."'] },
     },
     {
-      id: 'cat', name: 'Mochi', x: 11, y: 11, facing: 'down',
-      avatar: { skin: 0, hairStyle: 0, hairColor: 1, shirt: 9, pants: 9, accessory: 0 },
+      id: 'cat', name: 'Mochi', title: 'Die Café-Katze', x: 11, y: 11, facing: 'down',
+      avatar: { skin: 0, hairStyle: 0, hairColor: 1, shirt: 9, pants: 9, accessory: 0 , expression: 0},
       bubble: 'mrr',
       dialog: {
         lines: [
@@ -326,8 +328,8 @@ const cockpit: RoomDef = {
   ],
   npcs: [
     {
-      id: 'iris', name: 'Iris', x: 6, y: 6, facing: 'down',
-      avatar: { skin: 1, hairStyle: 4, hairColor: 0, shirt: 6, pants: 9, accessory: 1, body: 3, height: 2 },
+      id: 'iris', name: 'Iris', title: 'Mentorin · Agent Mode', x: 6, y: 6, facing: 'down',
+      avatar: { skin: 1, hairStyle: 4, hairColor: 0, shirt: 6, pants: 9, accessory: 1, body: 3, height: 2 , expression: 3},
       bubble: '🚀', lessonId: 'agent-mode',
       dialog: { lines: ['Iris: "Du hast es bis hier geschafft. Komm rüber."'] },
     },

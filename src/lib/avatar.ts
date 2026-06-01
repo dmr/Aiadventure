@@ -12,6 +12,8 @@ export type AvatarConfig = {
   body?: number;
   /** Größe — index into HEIGHT_TYPES. Defaults to 1 (Normal). */
   height?: number;
+  /** Gesichtsausdruck — index into EXPRESSIONS. Defaults to 0 (Neutral). */
+  expression?: number;
 };
 
 export const SKIN_COLORS = [
@@ -48,6 +50,9 @@ const BODY_SPECS: BodySpec[] = [
 // Größe — overall stature (applied as a vertical body offset in drawAvatar).
 export const HEIGHT_TYPES = ['Klein', 'Normal', 'Groß'];
 
+// Gesichtsausdruck — drives eyebrows/eyes/mouth for character & clichés.
+export const EXPRESSIONS = ['Neutral', 'Fröhlich', 'Skeptisch', 'Cool', 'Überrascht'];
+
 export const DEFAULT_AVATAR: AvatarConfig = {
   skin: 1,
   hairStyle: 0,
@@ -78,6 +83,7 @@ export function randomAvatar(seed: number): AvatarConfig {
     accessory: Math.floor(r() * ACCESSORIES.length),
     body: Math.floor(r() * BODY_TYPES.length),
     height: Math.floor(r() * HEIGHT_TYPES.length),
+    expression: Math.floor(r() * EXPRESSIONS.length),
   };
 }
 
@@ -166,27 +172,30 @@ export function drawAvatar(
   ctx.fillStyle = skinShade;
   rect(ctx, 13, 17 + bob, 6, 1);
 
-  // Head: skin block
+  // Head: skin block (a touch wider for a rounder, cartoonier face)
+  const inkr = shade(skin, -0.55); // warm ink for the outline
   ctx.fillStyle = skin;
   rect(ctx, 10, 6 + bob, 12, 11);
-  // Round corners (cut top)
-  ctx.fillStyle = 'rgba(0,0,0,0)';
+  // Round corners (cut top + bottom)
   ctx.clearRect(10, 6 + bob, 1, 1);
   ctx.clearRect(21, 6 + bob, 1, 1);
   ctx.clearRect(10, 16 + bob, 1, 1);
   ctx.clearRect(21, 16 + bob, 1, 1);
 
-  // Cheeks shading
-  ctx.fillStyle = skinShade;
-  rect(ctx, 10, 13 + bob, 1, 3);
-  rect(ctx, 21, 13 + bob, 1, 3);
+  // Comic ink outline around the face (sides + chin) for a drawn, characterful look
+  ctx.fillStyle = inkr;
+  rect(ctx, 9, 8 + bob, 1, 8);   // left edge
+  rect(ctx, 22, 8 + bob, 1, 8);  // right edge
+  rect(ctx, 11, 17 + bob, 10, 1); // chin line
+  rect(ctx, 10, 16 + bob, 1, 1);
+  rect(ctx, 21, 16 + bob, 1, 1);
 
   // Hair
   drawHair(ctx, cfg.hairStyle, hair, hairShade, bob, facing);
 
   // Face details
   if (facing !== 'up') {
-    drawFace(ctx, bob, facing);
+    drawFace(ctx, bob, facing, cfg.expression ?? 0, hairShade);
   }
 
   // Accessory
@@ -195,22 +204,78 @@ export function drawAvatar(
   }
 }
 
-function drawFace(ctx: CanvasRenderingContext2D, bob: number, facing: string) {
-  const eyeY = 11 + bob;
-  ctx.fillStyle = '#1a1410';
-  if (facing === 'left') {
-    rect(ctx, 12, eyeY, 1, 2);
-    rect(ctx, 15, eyeY, 1, 2);
-  } else if (facing === 'right') {
-    rect(ctx, 16, eyeY, 1, 2);
-    rect(ctx, 19, eyeY, 1, 2);
-  } else {
-    rect(ctx, 13, eyeY, 1, 2);
-    rect(ctx, 18, eyeY, 1, 2);
+// Cartoon face: big eyes (white + pupil), eyebrows, mouth — driven by expression.
+function drawFace(
+  ctx: CanvasRenderingContext2D,
+  bob: number,
+  facing: string,
+  expression: number,
+  brow: string,
+) {
+  const dx = facing === 'left' ? -1 : facing === 'right' ? 1 : 0;
+  const lx = 12 + dx; // left-eye x
+  const rx = 17 + dx; // right-eye x
+  const eyeY = 10 + bob;
+  const ink = '#1a1208';
+
+  // Eye whites
+  ctx.fillStyle = '#fbf6ea';
+  rect(ctx, lx, eyeY, 2, 2);
+  rect(ctx, rx, eyeY, 2, 2);
+
+  // Pupils (gaze follows facing a touch)
+  const pdx = facing === 'left' ? 0 : facing === 'right' ? 1 : 0;
+  ctx.fillStyle = ink;
+  rect(ctx, lx + pdx, eyeY + 1, 1, 1);
+  rect(ctx, rx + pdx, eyeY + 1, 1, 1);
+
+  // Eyebrows + eyelids + mouth by expression
+  ctx.fillStyle = brow;
+  switch (expression) {
+    case 1: // Fröhlich — raised brows, smile, blush
+      rect(ctx, lx, eyeY - 2, 2, 1);
+      rect(ctx, rx, eyeY - 2, 2, 1);
+      ctx.fillStyle = ink;
+      rect(ctx, 13 + dx, 15 + bob, 1, 1);
+      rect(ctx, 14 + dx, 16 + bob, 4, 1);
+      rect(ctx, 18 + dx, 15 + bob, 1, 1); // smile (U)
+      ctx.fillStyle = 'rgba(220, 90, 80, 0.30)';
+      rect(ctx, 11 + dx, 13 + bob, 2, 1);
+      rect(ctx, 19 + dx, 13 + bob, 2, 1); // blush
+      break;
+    case 2: // Skeptisch — one brow up, flat/uneven mouth
+      rect(ctx, lx, eyeY - 2, 2, 1);   // left brow raised
+      rect(ctx, rx, eyeY - 1, 2, 1);   // right brow low
+      ctx.fillStyle = ink;
+      rect(ctx, 15 + dx, 15 + bob, 3, 1); // flat, shifted mouth
+      break;
+    case 3: // Cool — low flat brows, half-lids, smirk
+      rect(ctx, lx, eyeY - 1, 2, 1);
+      rect(ctx, rx, eyeY - 1, 2, 1);
+      ctx.fillStyle = '#1a1208';
+      rect(ctx, lx, eyeY, 2, 1); // half-lid over each eye
+      rect(ctx, rx, eyeY, 2, 1);
+      rect(ctx, 14 + dx, 15 + bob, 3, 1);
+      rect(ctx, 17 + dx, 14 + bob, 1, 1); // smirk up on one side
+      break;
+    case 4: // Überrascht — high brows, round open mouth
+      rect(ctx, lx, eyeY - 3, 2, 1);
+      rect(ctx, rx, eyeY - 3, 2, 1);
+      ctx.fillStyle = ink;
+      rect(ctx, 15 + dx, 14 + bob, 2, 2); // open 'o'
+      ctx.fillStyle = '#7a3b2e';
+      rect(ctx, 15 + dx, 15 + bob, 2, 1);
+      break;
+    default: // Neutral — flat brows, soft mouth
+      rect(ctx, lx, eyeY - 2, 2, 1);
+      rect(ctx, rx, eyeY - 2, 2, 1);
+      ctx.fillStyle = 'rgba(80, 30, 20, 0.65)';
+      rect(ctx, 15 + dx, 15 + bob, 2, 1);
   }
-  // Subtle mouth
-  ctx.fillStyle = 'rgba(80, 30, 20, 0.55)';
-  rect(ctx, 15, 14 + bob, 2, 1);
+
+  // Tiny nose
+  ctx.fillStyle = 'rgba(120, 70, 40, 0.35)';
+  rect(ctx, 15 + dx, 13 + bob, 1, 1);
 }
 
 function drawHair(

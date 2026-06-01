@@ -10,6 +10,7 @@ import {
   ACCESSORIES,
   BODY_TYPES,
   HEIGHT_TYPES,
+  EXPRESSIONS,
   type AvatarConfig,
 } from './avatar';
 
@@ -30,6 +31,8 @@ function expectInRange(cfg: AvatarConfig) {
   expect(cfg.body ?? 0).toBeLessThan(BODY_TYPES.length);
   expect(cfg.height ?? 0).toBeGreaterThanOrEqual(0);
   expect(cfg.height ?? 0).toBeLessThan(HEIGHT_TYPES.length);
+  expect(cfg.expression ?? 0).toBeGreaterThanOrEqual(0);
+  expect(cfg.expression ?? 0).toBeLessThan(EXPRESSIONS.length);
 }
 
 describe('avatar config', () => {

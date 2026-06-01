@@ -1,5 +1,6 @@
 import { AvatarCanvas } from './AvatarCanvas';
 import { STAGES } from '@/lib/journey';
+import { ROOMS, ROOM_ORDER, ROOM_W, type RoomDef } from '@/lib/world';
 import type { AvatarConfig } from '@/lib/avatar';
 import { Check, X } from 'lucide-react';
 
@@ -12,6 +13,7 @@ type Props = {
 // The payoff: a celebratory certificate the player earns by finishing the journey.
 export function Certificate({ name, avatar, onClose }: Props) {
   const date = new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  const cast = ROOM_ORDER.flatMap((r) => ROOMS[r].npcs);
 
   return (
     <div
@@ -48,9 +50,7 @@ export function Certificate({ name, avatar, onClose }: Props) {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
                   <Check className="h-3 w-3" strokeWidth={3} />
                 </span>
-                <span>
-                  Stufe {s.n}: {s.title}
-                </span>
+                <span>Stufe {s.n}: {s.title}</span>
               </li>
             ))}
             <li className="flex items-center gap-2">
@@ -61,7 +61,38 @@ export function Certificate({ name, avatar, onClose }: Props) {
             </li>
           </ul>
 
-          <p className="text-xs text-muted-foreground mt-5 leading-relaxed">
+          {/* Rooms explored */}
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mt-6 mb-2">
+            Erkundete Räume
+          </p>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {ROOM_ORDER.map((r) => (
+              <div key={r} className="flex flex-col items-center gap-1">
+                <RoomMini room={ROOMS[r]} />
+                <span className="text-[9px] text-muted-foreground leading-none">{ROOMS[r].name}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Cast */}
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mt-6 mb-2">
+            Begegnungen
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-left">
+            {cast.map((npc) => (
+              <div key={npc.id} className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-2 py-1.5">
+                <div className="shrink-0 rounded bg-secondary/60 p-0.5">
+                  <AvatarCanvas config={npc.avatar} size={32} facing="down" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold leading-tight truncate">{npc.name}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight truncate">{npc.title ?? ''}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
             Du weißt jetzt, wann Claude Code brilliert, wann es dich reinlegt — und wie du den
             Unterschied steuerst. Genau darum ging's.
           </p>
@@ -74,6 +105,32 @@ export function Certificate({ name, avatar, onClose }: Props) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Tiny map preview of a room (tile colours from its grid).
+function RoomMini({ room }: { room: RoomDef }) {
+  const color = (ch: string): string => {
+    switch (ch) {
+      case '#': return '#5a3a22';
+      case 'F': return '#6b4423';
+      case 'D': return '#caa46a';
+      case '~': return '#3e5b6b';
+      default: return room.tint ?? '#e8c98a';
+    }
+  };
+  const cell = 3;
+  return (
+    <div
+      className="rounded border border-border overflow-hidden"
+      style={{ display: 'grid', gridTemplateColumns: `repeat(${ROOM_W}, ${cell}px)`, lineHeight: 0 }}
+    >
+      {room.rows.flatMap((rowArr, y) =>
+        rowArr.map((ch, x) => (
+          <div key={`${x}-${y}`} style={{ width: cell, height: cell, backgroundColor: color(ch) }} />
+        )),
+      )}
     </div>
   );
 }
