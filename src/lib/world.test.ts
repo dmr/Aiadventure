@@ -17,30 +17,41 @@ import { SCENARIOS } from './scenarios';
 describe('canEnterTile', () => {
   const eingang = ROOMS.eingang;
 
-  it('blocks walls', () => {
+  it('blocks walls (border corner)', () => {
     expect(canEnterTile(eingang, 0, 0)).toBe(false);
   });
 
-  it('allows open floor', () => {
-    expect(canEnterTile(eingang, 5, 4)).toBe(true);
+  it('allows open interior floor', () => {
+    expect(canEnterTile(eingang, 6, 8)).toBe(true);
   });
 
-  it('allows door tiles (exits)', () => {
-    expect(canEnterTile(eingang, 12, 4)).toBe(true);
+  it('allows door tiles (exits are walkable)', () => {
+    const exit = eingang.exits[0];
+    expect(canEnterTile(eingang, exit.x, exit.y)).toBe(true);
   });
 
   it('blocks the tile an NPC stands on', () => {
-    // Roya stands at (6,4) in the Lobby.
-    expect(canEnterTile(eingang, 6, 4)).toBe(false);
+    const npc = eingang.npcs[0];
+    expect(canEnterTile(eingang, npc.x, npc.y)).toBe(false);
   });
 
   it('blocks furniture tiles', () => {
-    // Bibliothek (cafebar) top row is all furniture.
-    expect(canEnterTile(ROOMS.cafebar, 5, 1)).toBe(false);
+    const lib = ROOMS.cafebar;
+    let found = false;
+    lib.rows.forEach((row, y) =>
+      row.forEach((ch, x) => {
+        if (ch === 'F') {
+          expect(canEnterTile(lib, x, y)).toBe(false);
+          found = true;
+        }
+      }),
+    );
+    expect(found).toBe(true);
   });
 
-  it('blocks decorations flagged block:true (Werkstatt stations)', () => {
-    expect(canEnterTile(ROOMS.garten, 2, 2)).toBe(false);
+  it('blocks decorations flagged block:true', () => {
+    const blocker = ROOMS.garten.decorations.find((d) => d.block)!;
+    expect(canEnterTile(ROOMS.garten, blocker.x, blocker.y)).toBe(false);
   });
 
   it('rejects out-of-bounds coordinates', () => {
@@ -52,39 +63,39 @@ describe('canEnterTile', () => {
 
 describe('findExitAt', () => {
   it('finds the exit at its coordinates', () => {
-    const exit = findExitAt(ROOMS.eingang, 12, 4);
-    expect(exit?.to).toBe('cafebar');
+    const exit = ROOMS.eingang.exits[0];
+    expect(findExitAt(ROOMS.eingang, exit.x, exit.y)?.to).toBe(exit.to);
   });
 
   it('returns undefined where there is no exit', () => {
-    expect(findExitAt(ROOMS.eingang, 5, 5)).toBeUndefined();
+    expect(findExitAt(ROOMS.eingang, 6, 8)).toBeUndefined();
   });
 });
 
 describe('nearestInteraction', () => {
-  it('returns the nearby NPC', () => {
-    // Player centred one tile below Roya (6,4 -> centre 6.5,4.5).
-    const hit = nearestInteraction(ROOMS.eingang, 6.5, 5.5);
+  it('returns the NPC at its own centre', () => {
+    const npc = ROOMS.eingang.npcs[0];
+    const hit = nearestInteraction(ROOMS.eingang, npc.x + 0.5, npc.y + 0.5);
     expect(hit?.kind).toBe('npc');
-    expect(hit && hit.kind === 'npc' && hit.npc.id).toBe('roya');
+    expect(hit && hit.kind === 'npc' && hit.npc.id).toBe(npc.id);
   });
 
   it('returns a nearby interactable object', () => {
-    // Werkstatt CLAUDE.md station sits at (2,2).
-    const hit = nearestInteraction(ROOMS.garten, 2.5, 3.5);
+    const obj = ROOMS.garten.interactables[0];
+    const hit = nearestInteraction(ROOMS.garten, obj.x + 0.5, obj.y + 0.5);
     expect(hit?.kind).toBe('obj');
   });
 
   it('returns null when nothing is in range', () => {
-    expect(nearestInteraction(ROOMS.eingang, 1.5, 1.5)).toBeNull();
+    expect(nearestInteraction(ROOMS.eingang, 0.9, 0.9)).toBeNull();
   });
 });
 
 describe('findPath (tap-to-move)', () => {
   const room = ROOMS.eingang;
+  const start = { x: 6, y: 8 };
 
   it('returns a contiguous walkable path of adjacent tiles ending at the goal', () => {
-    const start = { x: 6, y: 5 };
     const goal = { x: 2, y: 2 };
     const path = findPath(room, start, goal);
     expect(path).not.toBeNull();
@@ -93,27 +104,27 @@ describe('findPath (tap-to-move)', () => {
     let prev = start;
     for (const step of steps) {
       expect(canEnterTile(room, step.x, step.y)).toBe(true);
-      expect(Math.abs(step.x - prev.x) + Math.abs(step.y - prev.y)).toBe(1); // orthogonal, one tile
+      expect(Math.abs(step.x - prev.x) + Math.abs(step.y - prev.y)).toBe(1);
       prev = step;
     }
   });
 
   it('returns an empty path when already at the goal', () => {
-    expect(findPath(room, { x: 4, y: 4 }, { x: 4, y: 4 })).toEqual([]);
+    expect(findPath(room, start, start)).toEqual([]);
   });
 
   it('returns null for an unwalkable goal (wall)', () => {
-    expect(findPath(room, { x: 4, y: 4 }, { x: 0, y: 0 })).toBeNull();
+    expect(findPath(room, start, { x: 0, y: 0 })).toBeNull();
   });
 });
 
 describe('adjacentWalkable', () => {
-  it('finds a walkable neighbour of a blocked tile (e.g. an NPC)', () => {
-    // Roya occupies (6,4) in the Lobby; her neighbours are open floor.
-    const adj = adjacentWalkable(ROOMS.eingang, 6, 4, { x: 6, y: 6 });
+  it('finds a walkable neighbour of an NPC tile', () => {
+    const npc = ROOMS.eingang.npcs[0];
+    const adj = adjacentWalkable(ROOMS.eingang, npc.x, npc.y, { x: npc.x, y: npc.y + 3 });
     expect(adj).not.toBeNull();
     expect(canEnterTile(ROOMS.eingang, adj!.x, adj!.y)).toBe(true);
-    expect(Math.abs(adj!.x - 6) + Math.abs(adj!.y - 4)).toBe(1);
+    expect(Math.abs(adj!.x - npc.x) + Math.abs(adj!.y - npc.y)).toBe(1);
   });
 });
 
@@ -163,6 +174,22 @@ describe('world integrity', () => {
     for (const room of allRooms) {
       for (const obj of room.interactables) {
         if (obj.sandboxId) expect(SCENARIOS[obj.sandboxId], obj.sandboxId).toBeDefined();
+      }
+    }
+  });
+
+  it('every NPC and station is reachable from the room entrance (no traps)', () => {
+    for (const room of allRooms) {
+      // Start from the first exit door (always walkable).
+      const start = { x: room.exits[0].x, y: room.exits[0].y };
+      const targets = [...room.npcs, ...room.interactables];
+      for (const t of targets) {
+        const adj = adjacentWalkable(room, t.x, t.y, start);
+        expect(adj, `${room.id}: no free tile next to ${('id' in t && t.id) || t.x + ',' + t.y}`).not.toBeNull();
+        expect(
+          findPath(room, start, adj!),
+          `${room.id}: cannot reach ${('id' in t && t.id) || t.x + ',' + t.y}`,
+        ).not.toBeNull();
       }
     }
   });

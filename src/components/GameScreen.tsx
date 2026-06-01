@@ -109,7 +109,7 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
   const [tile, setTile] = useState<Tile>(() =>
     savedProgress.room === resumeRoom && savedProgress.tile
       ? savedProgress.tile
-      : { x: 6, y: 7 },
+      : { x: 6, y: 10 },
   );
   const [facing, setFacing] = useState<Dir>(
     (savedProgress.facing as Dir) ?? 'up',

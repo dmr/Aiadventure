@@ -1,5 +1,5 @@
 // World data: rooms, tiles, NPCs, interactables, exits.
-// Tile-based grid (13 wide × 9 high). The player moves one tile at a time.
+// Tile-based grid (13 wide × 13 high, square). The player moves one tile at a time.
 
 import type { AvatarConfig } from './avatar';
 
@@ -8,7 +8,7 @@ export type Dir = 'up' | 'down' | 'left' | 'right';
 
 export const TILE_SIZE = 36;
 export const ROOM_W = 13;
-export const ROOM_H = 9;
+export const ROOM_H = 13;
 
 // Tile codes:
 //  . floor    # wall    D door
@@ -78,6 +78,14 @@ function R(s: string): TileChar[] {
   return s.split('') as TileChar[];
 }
 
+// Shared 13×13 wall borders. Doors sit at y=6 (mid-height).
+const OPEN = '#...........#';
+const TOP = '#############';
+const DOOR_R = '#...........D'; // right door only
+const DOOR_L = 'D...........#'; // left door only
+const DOOR_LR = 'D...........D'; // both doors
+const SHELF = '#FFFFFFFFFFF#'; // furniture row (bookshelves / consoles)
+
 // ─────────────────────────────────────────────────────────────────────────────
 // EINGANG (Stufe 1 — Roya, Use-Cases)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,43 +96,56 @@ const eingang: RoomDef = {
   floor: 'wood',
   tint: '#e0c896',
   rows: [
-    R('#############'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........D'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#############'),
+    R(TOP), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN),
+    R(DOOR_R),
+    R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(TOP),
   ],
   decorations: [
     { x: 2, y: 1, emoji: '🪴' },
     { x: 10, y: 1, emoji: '🪴' },
-    { x: 6, y: 2, emoji: '📋', label: 'Lobby' },
-    { x: 1, y: 7, emoji: '🛋️' },
-    { x: 11, y: 7, emoji: '🛋️' },
+    { x: 6, y: 1, emoji: '📋', label: 'Aushang' },
+    { x: 1, y: 11, emoji: '🛋️' },
+    { x: 11, y: 11, emoji: '🛋️' },
+    { x: 10, y: 11, emoji: '☕' },
   ],
   exits: [
-    {
-      x: 12, y: 4, to: 'cafebar',
-      spawn: { x: 1, y: 4, facing: 'right' },
-      label: 'Stufe 2 →',
-    },
+    { x: 12, y: 6, to: 'cafebar', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 2 →' },
   ],
   npcs: [
     {
-      id: 'roya',
-      name: 'Roya',
-      x: 6, y: 4,
-      facing: 'down',
-      avatar: { skin: 2, hairStyle: 0, hairColor: 1, shirt: 2, pants: 9, accessory: 1 },
-      bubble: '👋',
-      lessonId: 'usecases',
+      id: 'roya', name: 'Roya', x: 6, y: 5, facing: 'down',
+      avatar: { skin: 2, hairStyle: 0, hairColor: 1, shirt: 2, pants: 9, accessory: 1, body: 0, height: 1 },
+      bubble: '👋', lessonId: 'usecases',
       dialog: { lines: ['Roya: "Komm her, ich zeig dir was."'] },
     },
+    {
+      id: 'theo', name: 'Theo', x: 3, y: 9, facing: 'right',
+      avatar: { skin: 3, hairStyle: 0, hairColor: 2, shirt: 9, pants: 6, accessory: 1, body: 2, height: 2 },
+      bubble: '🙄',
+      dialog: {
+        lines: [
+          'Theo nippt am Kaffee: "KI fürs Coden? Hab ich probiert — hat nur Mist gebaut."',
+          'Du: "Kommt drauf an, wofür man sie einsetzt. Frag mal Roya."',
+        ],
+      },
+    },
+    {
+      id: 'mara', name: 'Mara', x: 9, y: 4, facing: 'down',
+      avatar: { skin: 1, hairStyle: 2, hairColor: 4, shirt: 5, pants: 2, accessory: 0, body: 0, height: 0 },
+      bubble: '💡',
+      dialog: {
+        lines: ['Mara: "Tipp: Lass die KI das Langweilige machen — Boilerplate, Migrationen. Das Knifflige machst du."'],
+        reward: 'tip-mara',
+      },
+    },
   ],
-  interactables: [],
+  interactables: [
+    {
+      x: 6, y: 1, id: 'aushang', label: '📋 Aushang lesen', lines: [
+        '📋 Aushang: "Heute 16:00 — Pair-Programming mit KI. Bring deine skeptischsten Fragen mit."',
+      ],
+    },
+  ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -137,53 +158,43 @@ const cafebar: RoomDef = {
   floor: 'tile',
   tint: '#d6c4a8',
   rows: [
-    R('#############'),
-    R('#FFFFFFFFFFF#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('D...........D'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#FF.......FF#'),
-    R('#############'),
+    R(TOP), R(SHELF), R(OPEN), R(OPEN), R(OPEN), R(OPEN),
+    R(DOOR_LR),
+    R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(TOP),
   ],
   decorations: [
-    { x: 1, y: 1, emoji: '📚' },
-    { x: 3, y: 1, emoji: '📖' },
-    { x: 5, y: 1, emoji: '📚' },
-    { x: 7, y: 1, emoji: '📖' },
-    { x: 9, y: 1, emoji: '📚' },
-    { x: 11, y: 1, emoji: '📖' },
-    { x: 1, y: 7, emoji: '🪑' },
-    { x: 2, y: 7, emoji: '📔' },
-    { x: 10, y: 7, emoji: '📔' },
-    { x: 11, y: 7, emoji: '🪑' },
+    { x: 1, y: 1, emoji: '📚' }, { x: 3, y: 1, emoji: '📖' }, { x: 5, y: 1, emoji: '📚' },
+    { x: 8, y: 1, emoji: '📚' }, { x: 10, y: 1, emoji: '📖' },
+    { x: 1, y: 11, emoji: '🪑' }, { x: 11, y: 11, emoji: '🪑' }, { x: 6, y: 11, emoji: '🕯️' },
   ],
   exits: [
-    {
-      x: 0, y: 4, to: 'eingang',
-      spawn: { x: 11, y: 4, facing: 'left' },
-      label: '← Stufe 1',
-    },
-    {
-      x: 12, y: 4, to: 'lounge',
-      spawn: { x: 1, y: 4, facing: 'right' },
-      label: 'Stufe 3 →',
-    },
+    { x: 0, y: 6, to: 'eingang', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 1' },
+    { x: 12, y: 6, to: 'lounge', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 3 →' },
   ],
   npcs: [
     {
-      id: 'pavel',
-      name: 'Pavel',
-      x: 5, y: 2,
-      facing: 'down',
-      avatar: { skin: 1, hairStyle: 1, hairColor: 6, shirt: 7, pants: 6, accessory: 1 },
-      bubble: '📚',
-      lessonId: 'context',
+      id: 'pavel', name: 'Pavel', x: 6, y: 3, facing: 'down',
+      avatar: { skin: 1, hairStyle: 1, hairColor: 6, shirt: 7, pants: 6, accessory: 1, body: 1, height: 1 },
+      bubble: '📚', lessonId: 'context',
       dialog: { lines: ['Pavel: "Komm her, ich erklär dir was zu Context Windows."'] },
     },
+    {
+      id: 'bina', name: 'Bina', x: 4, y: 9, facing: 'down',
+      avatar: { skin: 4, hairStyle: 1, hairColor: 0, shirt: 1, pants: 6, accessory: 1, body: 0, height: 1 },
+      bubble: '🤫',
+      dialog: {
+        lines: ['Bina flüstert: "Lange Sessions? /clear zwischen unverwandten Themen — dann bleibt der Context scharf."'],
+        reward: 'tip-bina',
+      },
+    },
   ],
-  interactables: [],
+  interactables: [
+    {
+      x: 8, y: 1, id: 'regal', label: '📚 Regal durchsehen', lines: [
+        '📚 Ein Buch heißt „Lost in the Middle". Du blätterst: Je voller der Context, desto eher übersieht das Modell die Mitte.',
+      ],
+    },
+  ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -196,49 +207,43 @@ const lounge: RoomDef = {
   floor: 'wood',
   tint: '#e8c885',
   rows: [
-    R('#############'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('D...........D'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#############'),
+    R(TOP), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN),
+    R(DOOR_LR),
+    R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(TOP),
   ],
   decorations: [
-    { x: 2, y: 1, emoji: '🎨' },
-    { x: 10, y: 1, emoji: '✒️' },
-    { x: 2, y: 7, emoji: '📓' },
-    { x: 5, y: 7, emoji: '🖋️' },
-    { x: 7, y: 7, emoji: '📜' },
-    { x: 10, y: 7, emoji: '📓' },
+    { x: 2, y: 1, emoji: '🎨' }, { x: 10, y: 1, emoji: '✒️' }, { x: 6, y: 1, emoji: '📜', label: 'Prompt-Wand' },
+    { x: 2, y: 11, emoji: '📓' }, { x: 6, y: 11, emoji: '🖋️' }, { x: 10, y: 11, emoji: '📓' },
   ],
   exits: [
-    {
-      x: 0, y: 4, to: 'cafebar',
-      spawn: { x: 11, y: 4, facing: 'left' },
-      label: '← Stufe 2',
-    },
-    {
-      x: 12, y: 4, to: 'garten',
-      spawn: { x: 1, y: 4, facing: 'right' },
-      label: 'Stufe 4 →',
-    },
+    { x: 0, y: 6, to: 'cafebar', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 2' },
+    { x: 12, y: 6, to: 'garten', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 4 →' },
   ],
   npcs: [
     {
-      id: 'lia',
-      name: 'Lia',
-      x: 9, y: 2,
-      facing: 'down',
-      avatar: { skin: 2, hairStyle: 1, hairColor: 1, shirt: 7, pants: 6, accessory: 1 },
-      bubble: '✏️',
-      lessonId: 'promptcraft',
+      id: 'lia', name: 'Lia', x: 6, y: 4, facing: 'down',
+      avatar: { skin: 2, hairStyle: 1, hairColor: 1, shirt: 7, pants: 6, accessory: 1, body: 0, height: 1 },
+      bubble: '✏️', lessonId: 'promptcraft',
       dialog: { lines: ['Lia: "Komm her, lass uns über Promptcraft reden."'] },
     },
+    {
+      id: 'olu', name: 'Olu', x: 9, y: 9, facing: 'down',
+      avatar: { skin: 5, hairStyle: 5, hairColor: 0, shirt: 3, pants: 9, accessory: 3, body: 3, height: 2 },
+      bubble: '🎧',
+      dialog: {
+        lines: ['Olu: "Vage Prompts → vage Ergebnisse. Sag, was du WIRKLICH willst — mit Constraints."'],
+        reward: 'tip-olu',
+      },
+    },
   ],
-  interactables: [],
+  interactables: [
+    {
+      x: 6, y: 1, id: 'promptwand', label: '📜 Prompt-Wand ansehen', lines: [
+        '📜 Zwei Prompts hängen nebeneinander:',
+        '❌ „mach das schöner"   →   ✅ „extrahiere die Validierung in validateOrder(), mit Vitest-Test"',
+      ],
+    },
+  ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -251,54 +256,30 @@ const garten: RoomDef = {
   floor: 'wood',
   tint: '#e8c98a',
   rows: [
-    R('#############'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('D...........D'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#...........#'),
-    R('#############'),
+    R(TOP), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN),
+    R(DOOR_LR),
+    R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(TOP),
   ],
   decorations: [
     { x: 2, y: 2, emoji: '📄', label: 'CLAUDE.md', scale: 1.4, block: true },
     { x: 10, y: 2, emoji: '🗺️', label: 'Plan Mode', scale: 1.4, block: true },
-    { x: 2, y: 6, emoji: '🤖', label: 'Subagents', scale: 1.4, block: true },
-    { x: 10, y: 6, emoji: '🔌', label: 'MCP & Hooks', scale: 1.4, block: true },
-    { x: 6, y: 1, emoji: '⚙️' },
-    { x: 1, y: 1, emoji: '📦' },
-    { x: 11, y: 1, emoji: '🧰' },
-    { x: 1, y: 7, emoji: '💡' },
+    { x: 2, y: 10, emoji: '🤖', label: 'Subagents', scale: 1.4, block: true },
+    { x: 10, y: 10, emoji: '🔌', label: 'MCP & Hooks', scale: 1.4, block: true },
+    { x: 6, y: 1, emoji: '⚙️' }, { x: 1, y: 1, emoji: '📦' }, { x: 11, y: 1, emoji: '🧰' },
   ],
   exits: [
-    {
-      x: 0, y: 4, to: 'lounge',
-      spawn: { x: 11, y: 4, facing: 'left' },
-      label: '← Stufe 3',
-    },
-    {
-      x: 12, y: 4, to: 'cockpit',
-      spawn: { x: 1, y: 4, facing: 'right' },
-      label: 'Stufe 5 →',
-    },
+    { x: 0, y: 6, to: 'lounge', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 3' },
+    { x: 12, y: 6, to: 'cockpit', spawn: { x: 1, y: 6, facing: 'right' }, label: 'Stufe 5 →' },
   ],
   npcs: [
     {
-      id: 'sven',
-      name: 'Sven',
-      x: 6, y: 4,
-      facing: 'down',
-      avatar: { skin: 3, hairStyle: 5, hairColor: 3, shirt: 1, pants: 5, accessory: 2 },
-      bubble: '🛠️',
-      lessonId: 'cc-intro',
-      dialog: { lines: ['Sven: "Komm her — Übersicht zuerst."'] },
+      id: 'sven', name: 'Sven', x: 6, y: 6, facing: 'down',
+      avatar: { skin: 3, hairStyle: 5, hairColor: 3, shirt: 1, pants: 5, accessory: 2, body: 2, height: 1 },
+      bubble: '🛠️', lessonId: 'cc-intro',
+      dialog: { lines: ['Sven: "Komm her — Übersicht zuerst, dann die vier Stationen."'] },
     },
     {
-      id: 'cat',
-      name: 'Mochi',
-      x: 11, y: 7,
-      facing: 'down',
+      id: 'cat', name: 'Mochi', x: 11, y: 11, facing: 'down',
       avatar: { skin: 0, hairStyle: 0, hairColor: 1, shirt: 9, pants: 9, accessory: 0 },
       bubble: 'mrr',
       dialog: {
@@ -313,13 +294,13 @@ const garten: RoomDef = {
   interactables: [
     { x: 2, y: 2, id: 'station-claude-md', label: '📄 CLAUDE.md', lessonId: 'claude-md', lines: [] },
     { x: 10, y: 2, id: 'station-plan', label: '🗺️ Plan Mode + Slash-Commands', lessonId: 'plan-mode', lines: [] },
-    { x: 2, y: 6, id: 'station-subagents', label: '🤖 Subagents', lessonId: 'subagents', lines: [] },
-    { x: 10, y: 6, id: 'station-mcp', label: '🔌 MCP & Hooks', lessonId: 'mcp-hooks', lines: [] },
+    { x: 2, y: 10, id: 'station-subagents', label: '🤖 Subagents', lessonId: 'subagents', lines: [] },
+    { x: 10, y: 10, id: 'station-mcp', label: '🔌 MCP & Hooks', lessonId: 'mcp-hooks', lines: [] },
   ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COCKPIT (Stufe 5 — Agent Mode + Trainings-Simulator)
+// COCKPIT (Stufe 5 — Agent Mode + Trainings-Simulatoren)
 // ─────────────────────────────────────────────────────────────────────────────
 const cockpit: RoomDef = {
   id: 'cockpit',
@@ -328,86 +309,34 @@ const cockpit: RoomDef = {
   floor: 'stone',
   tint: '#d8c8b0',
   rows: [
-    R('#############'),
-    R('#FFFFFFFFFFF#'),
-    R('#...........#'),
-    R('#FF.......FF#'),
-    R('D...........#'),
-    R('#FF.......FF#'),
-    R('#...........#'),
-    R('#FFFFFFFFFFF#'),
-    R('#############'),
+    R(TOP), R(SHELF), R(OPEN), R(OPEN), R(OPEN), R(OPEN),
+    R(DOOR_L),
+    R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(OPEN), R(TOP),
   ],
   decorations: [
-    { x: 1, y: 1, emoji: '🖥️' },
-    { x: 3, y: 1, emoji: '🟢', label: 'Sim: Greenfield', scale: 1.2 },
-    { x: 5, y: 1, emoji: '🎛️' },
-    { x: 7, y: 1, emoji: '📊' },
-    { x: 9, y: 1, emoji: '🌙', label: 'Sim: Agent über Nacht', scale: 1.2 },
-    { x: 11, y: 1, emoji: '🛰️' },
-    { x: 1, y: 3, emoji: '💺' },
-    { x: 2, y: 3, emoji: '⌨️' },
-    { x: 10, y: 3, emoji: '⌨️' },
-    { x: 11, y: 3, emoji: '💺' },
-    { x: 1, y: 5, emoji: '💺' },
-    { x: 2, y: 5, emoji: '⌨️' },
-    { x: 10, y: 5, emoji: '⌨️' },
-    { x: 11, y: 5, emoji: '💺' },
-    { x: 1, y: 7, emoji: '🎯' },
-    { x: 3, y: 7, emoji: '📈' },
-    { x: 5, y: 7, emoji: '💼', label: 'Sim: Team-Rollout', scale: 1.4, block: true },
-    { x: 7, y: 7, emoji: '🎮', label: 'Trainings-Simulator', scale: 1.4, block: true },
-    { x: 9, y: 7, emoji: '🚦' },
-    { x: 11, y: 7, emoji: '🌐' },
+    { x: 1, y: 1, emoji: '🖥️' }, { x: 3, y: 1, emoji: '📡' }, { x: 5, y: 1, emoji: '🎛️' },
+    { x: 7, y: 1, emoji: '📊' }, { x: 9, y: 1, emoji: '🔭' }, { x: 11, y: 1, emoji: '🛰️' },
+    { x: 2, y: 3, emoji: '🎮', label: 'Friday Hotfix', scale: 1.3, block: true },
+    { x: 10, y: 3, emoji: '🟢', label: 'Greenfield', scale: 1.3, block: true },
+    { x: 2, y: 10, emoji: '🌙', label: 'Agent über Nacht', scale: 1.3, block: true },
+    { x: 10, y: 10, emoji: '💼', label: 'Team-Rollout', scale: 1.3, block: true },
   ],
   exits: [
-    {
-      x: 0, y: 4, to: 'garten',
-      spawn: { x: 11, y: 4, facing: 'left' },
-      label: '← Stufe 4',
-    },
+    { x: 0, y: 6, to: 'garten', spawn: { x: 11, y: 6, facing: 'left' }, label: '← Stufe 4' },
   ],
   npcs: [
     {
-      id: 'iris',
-      name: 'Iris',
-      x: 6, y: 4,
-      facing: 'down',
-      avatar: { skin: 1, hairStyle: 4, hairColor: 0, shirt: 6, pants: 9, accessory: 1 },
-      bubble: '🚀',
-      lessonId: 'agent-mode',
+      id: 'iris', name: 'Iris', x: 6, y: 6, facing: 'down',
+      avatar: { skin: 1, hairStyle: 4, hairColor: 0, shirt: 6, pants: 9, accessory: 1, body: 3, height: 2 },
+      bubble: '🚀', lessonId: 'agent-mode',
       dialog: { lines: ['Iris: "Du hast es bis hier geschafft. Komm rüber."'] },
     },
   ],
   interactables: [
-    {
-      x: 7, y: 7,
-      id: 'simulator',
-      label: '🎮 Simulator: Friday Hotfix',
-      sandboxId: 'friday-hotfix',
-      lines: [],
-    },
-    {
-      x: 3, y: 1,
-      id: 'sim-greenfield',
-      label: '🟢 Simulator: Greenfield-Service',
-      sandboxId: 'greenfield-spec',
-      lines: [],
-    },
-    {
-      x: 9, y: 1,
-      id: 'sim-runaway',
-      label: '🌙 Simulator: Agent über Nacht',
-      sandboxId: 'runaway-agent',
-      lines: [],
-    },
-    {
-      x: 5, y: 7,
-      id: 'sim-manager',
-      label: '💼 Simulator: Team-Rollout (Lead-Sicht)',
-      sandboxId: 'manager-rollout',
-      lines: [],
-    },
+    { x: 2, y: 3, id: 'sim-friday', label: '🎮 Simulator: Friday Hotfix', sandboxId: 'friday-hotfix', lines: [] },
+    { x: 10, y: 3, id: 'sim-greenfield', label: '🟢 Simulator: Greenfield-Service', sandboxId: 'greenfield-spec', lines: [] },
+    { x: 2, y: 10, id: 'sim-runaway', label: '🌙 Simulator: Agent über Nacht', sandboxId: 'runaway-agent', lines: [] },
+    { x: 10, y: 10, id: 'sim-manager', label: '💼 Simulator: Team-Rollout (Lead-Sicht)', sandboxId: 'manager-rollout', lines: [] },
   ],
 };
 
