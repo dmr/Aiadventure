@@ -28,10 +28,15 @@ export function TitleScreen({ onStart }: Props) {
           <span className="text-2xl">🔥</span>
           <div className="h-px bg-foreground/30 flex-1 max-w-[60px]" />
         </div>
-        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8">
-          Ein kleines Café, ein paar Räume, ein paar Menschen.
+        <p className="text-base sm:text-lg leading-relaxed mb-8">
+          <span className="text-foreground font-medium">
+            Am Lagerfeuer erzählt man sich Geschichten — hier echte aus echten Codebases.
+          </span>
           <br />
-          Setz dich zu uns. Bleib so lang du willst.
+          <span className="text-muted-foreground">
+            In 20 Minuten lernst du, wann Claude Code brilliert, wann es dich reinlegt
+            und wie du den Unterschied steuerst.
+          </span>
         </p>
 
         <Button
