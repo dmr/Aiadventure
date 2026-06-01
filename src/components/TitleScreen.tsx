@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { AvatarCanvas } from './AvatarCanvas';
 import { ArrowRight, Plus, Trophy } from 'lucide-react';
-import { buildFromGender } from '@/lib/avatar';
 import { journeyProgress } from '@/lib/journey';
 import type { Session } from '@/lib/sessions';
 
@@ -69,7 +68,7 @@ export function TitleScreen({ sessions, onContinue, onNewSession }: Props) {
                       className="w-full flex items-center gap-3 rounded-xl border-2 border-border bg-card hover:border-primary/50 px-3 py-2.5 transition-colors"
                     >
                       <div className="shrink-0 rounded-lg bg-secondary/60 p-1">
-                        <AvatarCanvas config={s.avatar} size={40} facing="down" build={buildFromGender(s.gender)} />
+                        <AvatarCanvas config={s.avatar} size={40} facing="down" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold leading-tight truncate flex items-center gap-1">

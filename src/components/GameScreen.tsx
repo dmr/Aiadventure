@@ -11,14 +11,13 @@ import {
 import { LESSONS, type Lesson, type QuizStep, type RevealStep, type CodeStep, type QuoteStep, type SourcesStep } from '@/lib/lessons';
 import { SCENARIOS } from '@/lib/scenarios';
 import { SandboxRunner } from './SandboxRunner';
-import { hasSeenTutorial, markTutorialSeen, type Gender } from '@/lib/storage';
+import { hasSeenTutorial, markTutorialSeen } from '@/lib/storage';
 import { getSession, patchProgress, recordVisit, addPlaytime } from '@/lib/sessions';
 import { Tutorial } from './Tutorial';
 import { JourneyMap } from './JourneyMap';
 import { Certificate } from './Certificate';
 import { journeyProgress, STAGES } from '@/lib/journey';
-import { buildFromGender } from '@/lib/avatar';
-import type { AvatarConfig, Build } from '@/lib/avatar';
+import type { AvatarConfig } from '@/lib/avatar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, MapPin, X, Check, AlertTriangle, CircleX, Quote, ExternalLink, BookOpen, HelpCircle, Map, Trophy } from 'lucide-react';
 
@@ -26,7 +25,6 @@ type Props = {
   sessionId: string;
   avatar: AvatarConfig;
   name: string;
-  gender?: Gender;
   onExit: () => void;
 };
 
@@ -89,8 +87,7 @@ function dirToward(from: Tile, to: Tile): Dir | null {
   return null;
 }
 
-export function GameScreen({ sessionId, avatar, name, gender, onExit }: Props) {
-  const build = buildFromGender(gender);
+export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
   // Restore this session's progress + last position so the player resumes
   // exactly where they were.
   const [savedProgress] = useState(() => {
@@ -539,7 +536,7 @@ export function GameScreen({ sessionId, avatar, name, gender, onExit }: Props) {
       <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0">
-            <AvatarCanvas config={avatar} size={36} facing="down" build={build} />
+            <AvatarCanvas config={avatar} size={36} facing="down" />
           </div>
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground leading-tight">{name}</p>
@@ -633,7 +630,6 @@ export function GameScreen({ sessionId, avatar, name, gender, onExit }: Props) {
             walking={moving}
             walkFrame={walkFrame}
             avatar={avatar}
-            build={build}
           />
           {destination && (
             <DestinationMarker x={destination.x} y={destination.y} />
@@ -719,7 +715,6 @@ export function GameScreen({ sessionId, avatar, name, gender, onExit }: Props) {
         <Certificate
           name={name}
           avatar={avatar}
-          build={build}
           onClose={() => setShowCertificate(false)}
         />
       )}
@@ -1067,7 +1062,7 @@ function SourcesStepView({ step }: { step: SourcesStep }) {
 
 // ─── Room renderer ──────────────────────────────────────────────────────────
 function RoomRenderer({
-  room, tile, facing, walking, walkFrame, avatar, build,
+  room, tile, facing, walking, walkFrame, avatar,
 }: {
   room: RoomDef;
   tile: Tile;
@@ -1075,7 +1070,6 @@ function RoomRenderer({
   walking: boolean;
   walkFrame: number;
   avatar: AvatarConfig;
-  build: Build;
 }) {
   return (
     <div
@@ -1101,7 +1095,7 @@ function RoomRenderer({
         {room.npcs.map((npc) => (
           <NpcSprite key={npc.id} npc={npc} />
         ))}
-        <PlayerSprite tile={tile} facing={facing} walking={walking} walkFrame={walkFrame} avatar={avatar} build={build} />
+        <PlayerSprite tile={tile} facing={facing} walking={walking} walkFrame={walkFrame} avatar={avatar} />
       </div>
     </div>
   );
@@ -1271,9 +1265,9 @@ function DestinationMarker({ x, y }: { x: number; y: number }) {
 }
 
 function PlayerSprite({
-  tile, facing, walking, walkFrame, avatar, build,
+  tile, facing, walking, walkFrame, avatar,
 }: {
-  tile: Tile; facing: Dir; walking: boolean; walkFrame: number; avatar: AvatarConfig; build: Build;
+  tile: Tile; facing: Dir; walking: boolean; walkFrame: number; avatar: AvatarConfig;
 }) {
   const w = TILE_PCT_W * SPRITE_TILES;
   const h = TILE_PCT_H * SPRITE_TILES;
@@ -1295,7 +1289,6 @@ function PlayerSprite({
         config={avatar}
         size="100%"
         facing={facing}
-        build={build}
         walking={walking}
         frame={walkFrame}
       />

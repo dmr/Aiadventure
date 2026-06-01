@@ -9,8 +9,10 @@ import {
   HAIR_STYLES,
   CLOTH_COLORS,
   ACCESSORIES,
+  BODY_TYPES,
+  HEIGHT_TYPES,
   randomAvatar,
-  buildFromGender,
+  bodyForGender,
 } from '@/lib/avatar';
 import type { Gender } from '@/lib/storage';
 import { randomName } from '@/lib/names';
@@ -26,9 +28,10 @@ type Props = {
   onDone: () => void;
 };
 
-type Tab = 'skin' | 'hair' | 'outfit' | 'accessory';
+type Tab = 'body' | 'skin' | 'hair' | 'outfit' | 'accessory';
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
+  { id: 'body', label: 'Statur', emoji: '🧍' },
   { id: 'skin', label: 'Haut', emoji: '✋' },
   { id: 'hair', label: 'Haare', emoji: '💇' },
   { id: 'outfit', label: 'Outfit', emoji: '👕' },
@@ -42,10 +45,9 @@ const GENDERS: { id: Gender; label: string }[] = [
 ];
 
 export function AvatarEditor({ config, name, gender, onChange, onName, onGender, onDone }: Props) {
-  const [tab, setTab] = useState<Tab>('skin');
+  const [tab, setTab] = useState<Tab>('body');
 
   const set = (patch: Partial<AvatarConfig>) => onChange({ ...config, ...patch });
-  const build = buildFromGender(gender);
 
   return (
     // Full dynamic-viewport height + overflow-hidden → the page never scrolls on
@@ -59,7 +61,7 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
       {/* Preview + name + Anrede in one compact row */}
       <div className="shrink-0 mt-3 flex items-center gap-3">
         <div className="shrink-0 rounded-xl bg-card border-2 border-border p-1.5">
-          <AvatarCanvas config={config} size={92} facing="down" build={build} />
+          <AvatarCanvas config={config} size={92} facing="down" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -87,7 +89,11 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
             {GENDERS.map(g => (
               <button
                 key={g.id}
-                onClick={() => onGender(gender === g.id ? undefined : g.id)}
+                onClick={() => {
+                  const next = gender === g.id ? undefined : g.id;
+                  onGender(next);
+                  if (next) set({ body: bodyForGender(next) });
+                }}
                 aria-pressed={gender === g.id}
                 className={`px-3 h-7 rounded-full text-xs font-medium transition-all
                   ${gender === g.id
@@ -104,7 +110,7 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
       </div>
 
       {/* Tabs */}
-      <div className="grid grid-cols-4 gap-2 mt-3 shrink-0">
+      <div className="grid grid-cols-5 gap-1.5 mt-3 shrink-0">
         {TABS.map(t => (
           <button
             key={t.id}
@@ -123,6 +129,16 @@ export function AvatarEditor({ config, name, gender, onChange, onName, onGender,
 
       {/* Palette — takes the remaining height; scrolls internally only if needed */}
       <div className="flex-1 min-h-0 overflow-y-auto mt-2 rounded-xl bg-card/80 border-2 border-border p-3">
+        {tab === 'body' && (
+          <>
+            <Section title="Statur">
+              <OptionRow options={BODY_TYPES} value={config.body ?? 1} onSelect={i => set({ body: i })} />
+            </Section>
+            <Section title="Größe" className="mt-4">
+              <OptionRow options={HEIGHT_TYPES} value={config.height ?? 1} onSelect={i => set({ height: i })} />
+            </Section>
+          </>
+        )}
         {tab === 'skin' && (
           <Section title="Hautton">
             <ColorRow colors={SKIN_COLORS} value={config.skin} onSelect={i => set({ skin: i })} />

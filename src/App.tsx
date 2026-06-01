@@ -106,7 +106,6 @@ function App() {
           sessionId={playingId}
           avatar={avatar}
           name={name || 'Gast'}
-          gender={gender}
           onExit={exitToTitle}
         />
       )}

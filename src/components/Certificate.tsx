@@ -1,17 +1,16 @@
 import { AvatarCanvas } from './AvatarCanvas';
 import { STAGES } from '@/lib/journey';
-import type { AvatarConfig, Build } from '@/lib/avatar';
+import type { AvatarConfig } from '@/lib/avatar';
 import { Check, X } from 'lucide-react';
 
 type Props = {
   name: string;
   avatar: AvatarConfig;
-  build: Build;
   onClose: () => void;
 };
 
 // The payoff: a celebratory certificate the player earns by finishing the journey.
-export function Certificate({ name, avatar, build, onClose }: Props) {
+export function Certificate({ name, avatar, onClose }: Props) {
   const date = new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -37,7 +36,7 @@ export function Certificate({ name, avatar, build, onClose }: Props) {
 
           <div className="my-4 flex flex-col items-center">
             <div className="rounded-xl bg-secondary/60 border-2 border-border p-1.5">
-              <AvatarCanvas config={avatar} size={88} facing="down" build={build} />
+              <AvatarCanvas config={avatar} size={88} facing="down" />
             </div>
             <p className="display-font text-xl font-semibold mt-2">{name}</p>
             <p className="text-xs text-muted-foreground">hat die Reise gemeistert · {date}</p>

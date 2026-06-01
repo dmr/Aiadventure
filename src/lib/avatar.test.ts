@@ -2,12 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_AVATAR,
   randomAvatar,
-  buildFromGender,
+  bodyForGender,
   SKIN_COLORS,
   HAIR_COLORS,
   HAIR_STYLES,
   CLOTH_COLORS,
   ACCESSORIES,
+  BODY_TYPES,
+  HEIGHT_TYPES,
   type AvatarConfig,
 } from './avatar';
 
@@ -24,6 +26,10 @@ function expectInRange(cfg: AvatarConfig) {
   expect(cfg.pants).toBeLessThan(CLOTH_COLORS.length);
   expect(cfg.accessory).toBeGreaterThanOrEqual(0);
   expect(cfg.accessory).toBeLessThan(ACCESSORIES.length);
+  expect(cfg.body ?? 0).toBeGreaterThanOrEqual(0);
+  expect(cfg.body ?? 0).toBeLessThan(BODY_TYPES.length);
+  expect(cfg.height ?? 0).toBeGreaterThanOrEqual(0);
+  expect(cfg.height ?? 0).toBeLessThan(HEIGHT_TYPES.length);
 }
 
 describe('avatar config', () => {
@@ -46,11 +52,13 @@ describe('avatar config', () => {
   });
 });
 
-describe('buildFromGender', () => {
-  it('maps gender to a body build, defaulting to neutral', () => {
-    expect(buildFromGender('w')).toBe('fem');
-    expect(buildFromGender('m')).toBe('masc');
-    expect(buildFromGender('d')).toBe('neutral');
-    expect(buildFromGender(undefined)).toBe('neutral');
+describe('bodyForGender', () => {
+  it('suggests a valid in-range Statur for each Anrede, Normal by default', () => {
+    for (const g of ['w', 'm', 'd', undefined] as const) {
+      const b = bodyForGender(g);
+      expect(b).toBeGreaterThanOrEqual(0);
+      expect(b).toBeLessThan(BODY_TYPES.length);
+    }
+    expect(bodyForGender(undefined)).toBe(1); // Normal
   });
 });

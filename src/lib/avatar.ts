@@ -8,6 +8,10 @@ export type AvatarConfig = {
   shirt: number;
   pants: number;
   accessory: number;
+  /** Statur (body build) — index into BODY_TYPES. Defaults to 1 (Normal). */
+  body?: number;
+  /** Größe — index into HEIGHT_TYPES. Defaults to 1 (Normal). */
+  height?: number;
 };
 
 export const SKIN_COLORS = [
@@ -30,6 +34,21 @@ export const ACCESSORIES = [
   'Keine', 'Brille', 'Hut', 'Kopfhörer', 'Mütze', 'Zylinder', 'Goldkette', 'Selfie-Stick',
 ];
 
+// Statur — distinct body builds (shoulder width, waist taper, belly bulge).
+export const BODY_TYPES = ['Schmal', 'Normal', 'Kräftig', 'Athletisch', 'Rund'];
+type BodySpec = { shoulderX: number; shoulderW: number; waist: number; belly: boolean };
+const BODY_SPECS: BodySpec[] = [
+  { shoulderX: 11, shoulderW: 10, waist: 1, belly: false }, // Schmal
+  { shoulderX: 10, shoulderW: 12, waist: 0, belly: false }, // Normal (original)
+  { shoulderX: 9, shoulderW: 14, waist: 0, belly: false }, // Kräftig
+  { shoulderX: 9, shoulderW: 14, waist: 2, belly: false }, // Athletisch (V-taper)
+  { shoulderX: 10, shoulderW: 12, waist: 0, belly: true }, // Rund
+];
+
+// Größe — leg length in px (shifts the whole stance shorter/taller).
+export const HEIGHT_TYPES = ['Klein', 'Normal', 'Groß'];
+const LEG_LENGTHS = [3, 4, 5];
+
 export const DEFAULT_AVATAR: AvatarConfig = {
   skin: 1,
   hairStyle: 0,
@@ -37,7 +56,16 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   shirt: 0,
   pants: 6,
   accessory: 0,
+  body: 1,
+  height: 1,
 };
+
+/** Default Statur suggested when an Anrede is chosen (overridable in the editor). */
+export function bodyForGender(gender?: 'w' | 'm' | 'd'): number {
+  if (gender === 'w') return 0; // Schmal
+  if (gender === 'm') return 2; // Kräftig
+  return 1; // Normal
+}
 
 // Random avatar (used for NPCs)
 export function randomAvatar(seed: number): AvatarConfig {
@@ -49,6 +77,8 @@ export function randomAvatar(seed: number): AvatarConfig {
     shirt: Math.floor(r() * CLOTH_COLORS.length),
     pants: Math.floor(r() * CLOTH_COLORS.length),
     accessory: Math.floor(r() * ACCESSORIES.length),
+    body: Math.floor(r() * BODY_TYPES.length),
+    height: Math.floor(r() * HEIGHT_TYPES.length),
   };
 }
 
@@ -63,22 +93,13 @@ function mulberry32(a: number) {
 
 export const AVATAR_SIZE = 32;
 
-/** Body build — optional, derived from the (optional) gender/Anrede choice. */
-export type Build = 'fem' | 'masc' | 'neutral';
-
-export function buildFromGender(gender?: 'w' | 'm' | 'd'): Build {
-  if (gender === 'w') return 'fem';
-  if (gender === 'm') return 'masc';
-  return 'neutral';
-}
-
 // Main draw function
 export function drawAvatar(
   ctx: CanvasRenderingContext2D,
   cfg: AvatarConfig,
-  opts: { walking?: boolean; frame?: number; facing?: 'down' | 'up' | 'left' | 'right'; build?: Build } = {}
+  opts: { walking?: boolean; frame?: number; facing?: 'down' | 'up' | 'left' | 'right' } = {}
 ) {
-  const { walking = false, frame = 0, facing = 'down', build = 'neutral' } = opts;
+  const { walking = false, frame = 0, facing = 'down' } = opts;
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
 
@@ -99,27 +120,38 @@ export function drawAvatar(
   rect(ctx, 9, 30, 14, 1);
   rect(ctx, 7, 31, 18, 1);
 
+  // Statur + Größe
+  const spec = BODY_SPECS[cfg.body ?? 1] ?? BODY_SPECS[1];
+  const legLen = LEG_LENGTHS[cfg.height ?? 1] ?? LEG_LENGTHS[1];
+  // "Normal" height (legLen 4) keeps the original feet line; taller/shorter
+  // shifts the feet so the stance reads short/tall without moving the torso.
+  const feetTop = 30 - legLen;
+
   // Legs (alternate when walking)
   ctx.fillStyle = pants;
   const legAOffset = walking && frame === 1 ? -1 : 0;
   const legBOffset = walking && frame === 1 ? 0 : (walking ? -1 : 0);
-  rect(ctx, 12, 26 + legAOffset + bob, 3, 4);
-  rect(ctx, 17, 26 + legBOffset + bob, 3, 4);
+  rect(ctx, 12, feetTop + legAOffset + bob, 3, legLen);
+  rect(ctx, 17, feetTop + legBOffset + bob, 3, legLen);
 
-  // Body / shirt — shoulder width varies subtly by build (centred on x=16).
-  // 'neutral' reproduces the original geometry exactly.
-  const shoulderX = build === 'masc' ? 9 : build === 'fem' ? 11 : 10;
-  const shoulderW = build === 'masc' ? 14 : build === 'fem' ? 10 : 12;
+  // Body / shirt — shoulder width + waist/belly vary by Statur (centred on x=16).
+  const { shoulderX, shoulderW, waist, belly } = spec;
   const armLX = shoulderX - 2;
   const armRX = shoulderX + shoulderW;
   ctx.fillStyle = shirtShade;
   rect(ctx, shoulderX, 18 + bob, shoulderW, 8); // base shirt
   ctx.fillStyle = shirt;
   rect(ctx, shoulderX + 1, 18 + bob, shoulderW - 2, 7); // shirt highlight
-  // Hint of a waist for 'fem' (taper the lower torso by 1px each side).
-  if (build === 'fem') {
-    ctx.clearRect(shoulderX, 24 + bob, 1, 2);
-    ctx.clearRect(shoulderX + shoulderW - 1, 24 + bob, 1, 2);
+  // Waist taper (slim/athletic): carve the lower torso in by `waist` px each side.
+  if (waist > 0) {
+    ctx.clearRect(shoulderX, 24 + bob, waist, 2);
+    ctx.clearRect(shoulderX + shoulderW - waist, 24 + bob, waist, 2);
+  }
+  // Belly (round): bulge the lower torso out by 1px each side.
+  if (belly) {
+    ctx.fillStyle = shirt;
+    rect(ctx, shoulderX - 1, 22 + bob, 1, 4);
+    rect(ctx, shoulderX + shoulderW, 22 + bob, 1, 4);
   }
 
   // Arms
