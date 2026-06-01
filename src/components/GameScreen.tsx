@@ -671,7 +671,7 @@ export function GameScreen({ sessionId, avatar, name, onExit }: Props) {
         </div>
       </div>
 
-      <Dialog open={!!dialog} onOpenChange={(o) => { if (!o && dialog?.kind === 'simple') advanceDialog(); }}>
+      <Dialog open={!!dialog} onOpenChange={(o) => { if (!o) setDialog(null); }}>
         <DialogContent
           className="max-w-md p-0 gap-0 border-2 overflow-hidden flex flex-col"
           style={{ maxHeight: 'calc(100dvh - 4rem)' }}

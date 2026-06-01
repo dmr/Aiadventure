@@ -45,9 +45,8 @@ const BODY_SPECS: BodySpec[] = [
   { shoulderX: 10, shoulderW: 12, waist: 0, belly: true }, // Rund
 ];
 
-// Größe — leg length in px (shifts the whole stance shorter/taller).
+// Größe — overall stature (applied as a vertical body offset in drawAvatar).
 export const HEIGHT_TYPES = ['Klein', 'Normal', 'Groß'];
-const LEG_LENGTHS = [3, 4, 5];
 
 export const DEFAULT_AVATAR: AvatarConfig = {
   skin: 1,
@@ -111,28 +110,28 @@ export function drawAvatar(
   const shirtShade = shade(shirt, -0.18);
   const pants = CLOTH_COLORS[cfg.pants] ?? CLOTH_COLORS[6];
 
-  // No vertical body-bob — the walk reads through the alternating legs alone,
-  // which keeps movement calm rather than bouncy.
-  const bob = 0;
+  // Größe: a vertical offset applied to the whole upper body. The feet stay
+  // anchored at y≈30, so a smaller offset → torso/head sit higher → a visibly
+  // taller silhouette (Klein +2 · Normal 0 · Groß −2). No walking bounce.
+  const bob = [2, 0, -2][cfg.height ?? 1] ?? 0;
 
-  // Shadow
+  // Shadow (feet line — not affected by Größe)
   ctx.fillStyle = 'rgba(20, 12, 8, 0.28)';
   rect(ctx, 9, 30, 14, 1);
   rect(ctx, 7, 31, 18, 1);
 
-  // Statur + Größe
+  // Statur
   const spec = BODY_SPECS[cfg.body ?? 1] ?? BODY_SPECS[1];
-  const legLen = LEG_LENGTHS[cfg.height ?? 1] ?? LEG_LENGTHS[1];
-  // "Normal" height (legLen 4) keeps the original feet line; taller/shorter
-  // shifts the feet so the stance reads short/tall without moving the torso.
-  const feetTop = 30 - legLen;
 
-  // Legs (alternate when walking)
+  // Legs span from the (Größe-offset) torso bottom down to the anchored feet
+  // line, so taller figures get longer legs rather than the same stance shifted.
+  const legTop = 26 + bob;
+  const legLen = Math.max(2, 30 - legTop);
   ctx.fillStyle = pants;
   const legAOffset = walking && frame === 1 ? -1 : 0;
   const legBOffset = walking && frame === 1 ? 0 : (walking ? -1 : 0);
-  rect(ctx, 12, feetTop + legAOffset + bob, 3, legLen);
-  rect(ctx, 17, feetTop + legBOffset + bob, 3, legLen);
+  rect(ctx, 12, legTop + legAOffset, 3, legLen);
+  rect(ctx, 17, legTop + legBOffset, 3, legLen);
 
   // Body / shirt — shoulder width + waist/belly vary by Statur (centred on x=16).
   const { shoulderX, shoulderW, waist, belly } = spec;
